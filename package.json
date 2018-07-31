@@ -1,7 +1,7 @@
 {
   "name": "myshoppingcart",
   "version": "1.0.0",
-  "description": "Accelerate your learning of new tech with a community that lets you get to the heart of burning tech questions.  Stop wasting time and get to the core of things in less than 15 minutes.",
+  "description": "Basic shopping cart.",
   "main": "server.js",
   "scripts": {
     "start": "if-env NODE_ENV=production && npm run start:prod || npm run start:dev",
