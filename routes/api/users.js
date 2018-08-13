@@ -37,7 +37,7 @@ module.exports = function(app) {
 
   });
 
-  // get specific user
+  // get specific user by id
   app.get("/api/users/:id", function(req, res) {
     db.Users.findAll({"where": {"id": req.params.id}}).
     then(function (userData) {
