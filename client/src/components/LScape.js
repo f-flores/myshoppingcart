@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import {BrowserRouter as Router, Route, Switch, Redirect} from "react-router-dom";
+import {BrowserRouter as Router, Route, Switch, Redirect, Link, withRouter} from "react-router-dom";
 
 // import VerticalNav from "./components/VerticalNav";
 // import Footer from "./components/Footer";
@@ -11,7 +11,7 @@ import {BrowserRouter as Router, Route, Switch, Redirect} from "react-router-dom
 // import Glossary from "./containers/Glossary";
 // import Admin from "./containers/Admin";
 // import Post from "./containers/Post";
-// import Login from "./containers/Login";
+import Login from "../containers/Login";
 // import Signup from "./containers/Signup";
 // import Logout from "./containers/Logout";
 import AUTH from "../utilities/AUTH";
@@ -22,7 +22,7 @@ import logo from "../logo.svg";
 import "../App.css";
 
 
-class LScape extends Component {
+/* class LScape extends Component {
   constructor(props) {
     super(props);
 
@@ -41,7 +41,7 @@ class LScape extends Component {
       errorMsg: "",
       redirectReferrer: false
     };
-  }
+  } */
 
   // Setting State For Login
 /*   LoginResult = (authObj, redirPath) => {
@@ -57,7 +57,7 @@ class LScape extends Component {
 
 /*   LogoutResult = (authObj) => this.setState(authObj); */
 
-  componentDidMount() {
+/*   componentDidMount() {
     this._isMounted = true;
     this.redirPath = "";
 
@@ -80,12 +80,12 @@ class LScape extends Component {
   renderLogin = () => {
     console.log("in renderLogin()");
     this.safeUpdate({redirectReferrer: true});
-  }
+  } */
 
 
 
 
-  render() {
+/*   render() {
     return (
       <div className="App">
         <header className="App-header">
@@ -98,6 +98,76 @@ class LScape extends Component {
       </div>
     );
   }
-}
+} */
+
+const fakeAuth = {
+  isAuthenticated: false,
+  authenticate(cb) {
+    this.isAuthenticated = true;
+    setTimeout(cb, 100); // fake async
+  },
+  signout(cb) {
+    this.isAuthenticated = false;
+    setTimeout(cb, 100);
+  }
+};
+
+const AuthButton = withRouter(
+  ({ history }) =>
+    fakeAuth.isAuthenticated ? (
+      <p>
+        Welcome!{" "}
+        <button
+          onClick={() => {
+            fakeAuth.signout(() => history.push("/"));
+          }}
+        >
+          Sign out
+        </button>
+      </p>
+    ) : (
+      <p>You are not logged in.</p>
+    )
+);
+
+const PrivateRoute = ({ component: Component, ...rest }) => (
+  <Route
+    {...rest}
+    render={props =>
+      fakeAuth.isAuthenticated ? (
+        <Component {...props} />
+      ) : (
+        <Redirect
+          to={{
+            pathname: "/login",
+            state: { from: props.location }
+          }}
+        />
+      )
+    }
+  />
+);
+
+const Public = () => <h3>Public</h3>;
+const Protected = () => <h3>Protected</h3>;
+
+const LScape = () => (
+  <Router>
+    <div>
+      <AuthButton />
+      <ul>
+        <li>
+          <Link to="/public">Public Page</Link>
+        </li>
+        <li>
+          <Link to="/protected">Protected Page</Link>
+        </li>
+      </ul>
+      <Route path="/public" component={Public} />
+      <Route path="/login" component={Login} />
+      <PrivateRoute path="/protected" component={Protected} />
+    </div>
+  </Router>
+);
 
 export default LScape;
