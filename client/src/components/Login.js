@@ -1,6 +1,10 @@
 import React, {Component} from "react";
 import {Redirect} from "react-router-dom";
 
+// import AUTH from "../utilities/AUTH";
+// import {ErrorUserName, ErrorPassword} from "../components/ErrorComponents";
+import {MinUsernameLength, MaxUsernameLength, MinPasswordLength} from "../constants/Consts";
+
 const fakeAuth = {
   isAuthenticated: false,
   authenticate(cb) {

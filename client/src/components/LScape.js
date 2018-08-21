@@ -11,8 +11,8 @@ import {BrowserRouter as Router, Route, Switch, Redirect, Link, withRouter} from
 // import Glossary from "./containers/Glossary";
 // import Admin from "./containers/Admin";
 // import Post from "./containers/Post";
-import Login from "../containers/Login";
-// import Signup from "./containers/Signup";
+import Login from "./Login";
+import Signup from "./Signup";
 // import Logout from "./containers/Logout";
 import AUTH from "../utilities/AUTH";
 // import ScrollToTop from "./components/ScrollToTop";
@@ -151,23 +151,48 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
 const Public = () => <h3>Public</h3>;
 const Protected = () => <h3>Protected</h3>;
 
-const LScape = () => (
-  <Router>
-    <div>
-      <AuthButton />
-      <ul>
-        <li>
-          <Link to="/public">Public Page</Link>
-        </li>
-        <li>
-          <Link to="/protected">Protected Page</Link>
-        </li>
-      </ul>
-      <Route path="/public" component={Public} />
-      <Route path="/login" component={Login} />
-      <PrivateRoute path="/protected" component={Protected} />
-    </div>
-  </Router>
-);
+class LScape extends Component {
+  
+  render() {
+
+    return (
+      <Router>
+        <div>
+          <AuthButton />
+          <ul>
+            <li>
+              <Link to="/public">Public Page</Link>
+            </li>
+            <li>
+              <Link to="/protected">Protected Page</Link>
+            </li>
+          </ul>
+
+          <Route path="/public" component={Public} />
+
+          <Route exact path="/login" 
+            render={(props) =>
+              <Login
+                {...props}
+                getLoginResult = {this.getLoginResult}
+              />
+            }
+          />
+
+          <Route exact path="/signup"
+            render={(props) =>
+              <Signup
+                {...props}
+                getSignupResult = {this.getSignupResult}
+              />
+            }
+          />
+
+          <PrivateRoute path="/protected" component={Protected} />
+        </div>
+      </Router>
+    );
+  }
+}
 
 export default LScape;
