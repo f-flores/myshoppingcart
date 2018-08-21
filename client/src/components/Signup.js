@@ -14,7 +14,7 @@ import {ErrorUserName, ErrorPassword, ErrorEmail, ErrorPasswordMatch} from "./Er
 import {MinUsernameLength, MaxUsernameLength, MinPasswordLength} from "../constants/Consts";
 
 class Signup extends Component {
-  constructor({values, handleChange}) {
+  constructor({values, errors, handleChange, touched}) {
     super();
     this.state = {
       success: false,
@@ -52,13 +52,25 @@ class Signup extends Component {
     
         <h1 className="col-12">Sign Up</h1>
         <Form className="col-12 col-md-6 my-1">
-          <Field type="text" name="username" className="form-control" placeholder="Enter Username" />
+          <div className="inline-flex mb-2">
+            <Field type="text" name="username" className="form-control" placeholder="Enter Username" />
+            { this.props.touched.username && this.props.errors.username && <p className="bg-danger text-white">{this.props.errors.username}</p>}
+          </div>
 
-          <Field type="email" name="email" className="form-control" placeholder="Enter Email" />
-          
-          <Field type="password" name="password" className="form-control" placeholder="Enter Password"/>
+          <div className="inline-flex mb-2">
+            <Field type="email" name="email" className="inline form-control" placeholder="Enter Email" />
+            { this.props.touched.email && this.props.errors.email && <p className="bg-danger text-white">{this.props.errors.email}</p>}
+          </div>
 
-          <Field type="password" name="pswrdConfirmation" className="form-control" placeholder="Confirm Password" />
+          <div className="inline-flex mb-2">
+            <Field type="password" name="password" className="form-control" placeholder="Enter Password"/>
+            { this.props.touched.password && this.props.errors.password && <p className="bg-danger text-white">{this.props.errors.password}</p>}
+          </div>
+
+          <div className="inline-flex mb-2">
+            <Field type="password" name="pswrdConfirmation" className="form-control" placeholder="Confirm Password" />
+            { this.props.touched.pswrdConfirmation && this.props.errors.pswrdConfirmation && <p className="bg-danger text-white">{this.props.errors.pswrdConfirmation}</p>}
+          </div>
 
           <button type="submit" className="btn btn-block">Sign Up</button>
         </Form>
@@ -70,17 +82,26 @@ class Signup extends Component {
 }
 
 const SignupFormik = withFormik({
-  mapPropsToValues({email, password}) {
+  mapPropsToValues({username, email, password, pswrdConfirmation}) {
     return {
+      username: username || "",
       email: email || "",
-      password: password || ""
+      password: password || "",
+      pswrdConfirmation: pswrdConfirmation || ""
     }
   },
   validationSchema: Yup.object().shape({
-    email: Yup.string().email().required(),
-    password: Yup.string().
-      min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`).
-      required("Must Enter password field")
+    username: Yup.string()
+      .min(MinUsernameLength, `Username must be at least ${MinUsernameLength} characters long`)
+      .max(MaxUsernameLength, `Username can be at most ${MaxUsernameLength} characters long.`)
+      .required("Must enter username"),
+    email: Yup.string().email("Please enter valid email.").required("Email is required."),
+    password: Yup.string()
+      .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
+      .required("Must Enter password field"),
+    pswrdConfirmation: Yup.string()
+      .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
+      .required("Must Enter password confirmation")
   }),
   handleSubmit(values) {
     console.log(values);
