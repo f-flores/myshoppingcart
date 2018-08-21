@@ -10,7 +10,7 @@ import { withFormik, Form, Field } from "formik";
 import * as Yup from "yup";
 
 // import AUTH from "../utilities/AUTH";
-import {ErrorUserName, ErrorPassword, ErrorEmail, ErrorPasswordMatch} from "./ErrorComponents";
+// import {ErrorUserName, ErrorPassword, ErrorEmail, ErrorPasswordMatch} from "./ErrorComponents";
 import {MinUsernameLength, MaxUsernameLength, MinPasswordLength} from "../constants/Consts";
 
 class Signup extends Component {
@@ -101,6 +101,7 @@ const SignupFormik = withFormik({
       .required("Must Enter password field"),
     pswrdConfirmation: Yup.string()
       .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
+      .oneOf([Yup.ref('password'), null], "Passwords must match")
       .required("Must Enter password confirmation")
   }),
   handleSubmit(values) {
