@@ -6,6 +6,7 @@
 
 import React, {Component} from "react";
 import {Redirect} from "react-router-dom";
+import AUTH from "../utilities/AUTH";
 import { withFormik, Form, Field } from "formik";
 import * as Yup from "yup";
 
@@ -17,13 +18,7 @@ class Signup extends Component {
   constructor({values, errors, handleChange, touched}) {
     super();
     this.state = {
-      success: false,
-      username: "",
-      password: "",
-      pswrdConfirmation: "",
-      email: "",
-      userId: 0,
-      errorMsg: ""
+      success: false
     }
   }
 
@@ -46,33 +41,51 @@ class Signup extends Component {
   }
 
   render() {
+    const touchedUname = this.props.touched.username;
+    const touchedEmail = this.props.touched.email;
+    const touchedPword = this.props.touched.password;
+    const touchedPconf = this.props.touched.pswrdConfirmation;
+
+    const errorUname = this.props.errors.username;
+    const errorEmail = this.props.errors.email;
+    const errorPword = this.props.errors.password;
+    const errorPconf = this.props.errors.pswrdConfirmation;
+
     return (
     <div className="container py-5">
     <div className="row justify-content-center text-center">
     
-        <h1 className="col-12">Sign Up</h1>
+        <h1 className="col-12">Become a Member Of Our Service</h1>
         <Form className="col-12 col-md-6 my-1">
-          <div className="inline-flex mb-2">
-            <Field type="text" name="username" className="form-control" placeholder="Enter Username" />
-            { this.props.touched.username && this.props.errors.username && <p className="bg-danger text-white">{this.props.errors.username}</p>}
+          <div className="row mb-2 form-group">
+            <Field type="text" name="username" className="form-control col-sm-8 col-xs-12" placeholder="Enter Username" />
+            { touchedUname && errorUname 
+              ? <p className="col-sm-4 col-xs-12 pt-1 font-weight-bold text-danger small">{errorUname}</p>
+              : touchedUname ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
           </div>
 
-          <div className="inline-flex mb-2">
-            <Field type="email" name="email" className="inline form-control" placeholder="Enter Email" />
-            { this.props.touched.email && this.props.errors.email && <p className="bg-danger text-white">{this.props.errors.email}</p>}
+          <div className="row mb-2 form-group">
+            <Field type="email" name="email" className="form-control col-sm-8 col-xs-12" placeholder="Enter Email" />
+            { touchedEmail && errorEmail 
+              ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errorEmail}</p>
+              : touchedEmail ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
           </div>
 
-          <div className="inline-flex mb-2">
-            <Field type="password" name="password" className="form-control" placeholder="Enter Password"/>
-            { this.props.touched.password && this.props.errors.password && <p className="bg-danger text-white">{this.props.errors.password}</p>}
+          <div className="row mb-2 form-group">
+            <Field type="password" name="password" className="form-control col-sm-8 col-xs-12" placeholder="Enter Password"/>
+            { touchedPword && errorPword 
+              ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errorPword}</p>
+              : touchedPword ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
           </div>
 
-          <div className="inline-flex mb-2">
-            <Field type="password" name="pswrdConfirmation" className="form-control" placeholder="Confirm Password" />
-            { this.props.touched.pswrdConfirmation && this.props.errors.pswrdConfirmation && <p className="bg-danger text-white">{this.props.errors.pswrdConfirmation}</p>}
+          <div className="row mb-2 form-group">
+            <Field type="password" name="pswrdConfirmation" className="form-control col-sm-8 col-xs-12" placeholder="Confirm Password" />
+            { touchedPconf && errorPconf 
+              ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errorPconf}</p>
+              : touchedPconf ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
           </div>
 
-          <button type="submit" className="btn btn-block">Sign Up</button>
+          <button type="submit" className="btn btn-lg btn-primary">Sign Up</button>
         </Form>
       </div>
     </div>
@@ -92,17 +105,17 @@ const SignupFormik = withFormik({
   },
   validationSchema: Yup.object().shape({
     username: Yup.string()
-      .min(MinUsernameLength, `Username must be at least ${MinUsernameLength} characters long`)
-      .max(MaxUsernameLength, `Username can be at most ${MaxUsernameLength} characters long.`)
+      .min(MinUsernameLength, `Must be at least ${MinUsernameLength} characters long`)
+      .max(MaxUsernameLength, `Can be at most ${MaxUsernameLength} characters long.`)
       .required("Must enter username"),
-    email: Yup.string().email("Please enter valid email.").required("Email is required."),
+    email: Yup.string().email("Please enter valid email.").required("Email is required"),
     password: Yup.string()
       .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
-      .required("Must Enter password field"),
+      .required("Enter password field"),
     pswrdConfirmation: Yup.string()
       .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
       .oneOf([Yup.ref('password'), null], "Passwords must match")
-      .required("Must Enter password confirmation")
+      .required("Confirm password missing")
   }),
   handleSubmit(values) {
     console.log(values);

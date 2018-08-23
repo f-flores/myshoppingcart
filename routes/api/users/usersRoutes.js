@@ -1,3 +1,5 @@
+const router = require("express").Router();
+
 // import formidable
 var formidable = require("formidable");
 var cloudinary = require("cloudinary");
@@ -5,8 +7,8 @@ var cloudinary = require("cloudinary");
 require("dotenv").config();
 
 // Requiring our models and passport as we've configured it
-var db = require("../../models");
-var passport = require("../../config/passport");
+var db = require("../../../models");
+var passport = require("../../../config/passport");
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
@@ -14,6 +16,22 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+router
+  .route("/")
+  .get(function (req, res) {
+    db.Users.findAll({}).
+    then(function (userData) {
+        // return 404 if no row was found, this means no data exists
+        if (!userData) return res.status(404).end();
+
+        console.log("# of api/users: " + userData.length);
+        res.json(userData);
+    });
+  });
+
+module.exports = router;
+
+/*
 module.exports = function(app) {
   var Sequelize = require("sequelize");
   const Op = Sequelize.Op;
@@ -36,7 +54,9 @@ module.exports = function(app) {
     });
 
   });
+*/
 
+/*
   // get specific user by id
   app.get("/api/users/:id", function(req, res) {
     db.Users.findAll({"where": {"id": req.params.id}}).
@@ -47,23 +67,23 @@ module.exports = function(app) {
       res.json(userData);
     });
   });
-
+*/
 
   // ============================================================================
   // API POST ROUTES FOR USERS
   //
   // Add Routes
   // post or insert
-  app.post("/api/users", function(req, res) {
+  // app.post("/api/users", function(req, res) {
     // var condition = "user_name = '" + req.body.user_name + "'";
-    console.log("in /api/users data: " + JSON.stringify(req.body));
+    // console.log("in /api/users data: " + JSON.stringify(req.body));
 
-    db.Users.create(req.body).then(function(userData) {
-      console.log("user_id " + userData.id + " created successfully");
-      res.json(userData);
-    });
+    // db.Users.create(req.body).then(function(userData) {
+    //  console.log("user_id " + userData.id + " created successfully");
+    //  res.json(userData);
+    // });
 
-  });
+  // });
 
   // ========================================================================================
   // AUTHENTICATION SECTION
@@ -72,6 +92,8 @@ module.exports = function(app) {
   // Using the passport.authenticate middleware with our local strategy.
   // If the user has valid login credentials, send them to the members page.
   // Otherwise the user will be sent an error
+  /*
+  
   app.post("/api/login", passport.authenticate("local"), function (req, res) {
     // Since we're doing a POST with javascript, we can't actually redirect that post into a GET request
     // So we're sending the user back the route to the members page because the redirect will happen on the front end
@@ -86,11 +108,12 @@ module.exports = function(app) {
       res.redirect("/admin");
     }
   });
-
+ */
 
   // Route for signing up a user. The user's password is automatically hashed and stored securely thanks to
   // how we configured our Sequelize User Model. If the user is created successfully, proceed to log the user in,
   // otherwise send back an error
+  /*
   app.post("/api/signup/user", function (req, res) {
     var validName = false,
       validEmail = false,
@@ -204,7 +227,9 @@ module.exports = function(app) {
     });
 
   });
+ */
 
+ /*
   // Route for logging user out
   app.get("/logout", function (req, res) {
     console.log("in logout");
@@ -237,7 +262,9 @@ module.exports = function(app) {
       });     
     }
   });
+*/
 
+/*
   // ----------------------------------------------------------------------------
   // Route for getting new photo
   // ----------------------------------------------------------------------------
@@ -248,10 +275,13 @@ module.exports = function(app) {
       res.json({photo: dbUser.user_photo});
     });
   });
+*/
 
   // ----------------------------------------------------------------------------
   // workaround put route for updating user profile
   // ----------------------------------------------------------------------------
+
+/*
   app.put("/api/updateprofile/user/:id", function(req, res) {
     // Create a new instance of formidable to handle the request info
     var form = new formidable.IncomingForm(),
@@ -322,7 +352,9 @@ module.exports = function(app) {
     });
 
   });
+*/
 
+/*
     // =============================================================================
     // HELPER validation functions
     // -----------------------------------------------------------------------------
@@ -364,3 +396,4 @@ module.exports = function(app) {
     }
 
 };
+*/

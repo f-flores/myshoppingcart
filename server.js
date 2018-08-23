@@ -11,6 +11,7 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var session = require("express-session");
 var moment = require("moment");
+const routes = require("./routes");
 
 require("dotenv").config();
 
@@ -55,13 +56,23 @@ app.engine("handlebars", exphbs({
 // Database & Static Directory
 // =============================================================
 var db = require("./models");
-// app.use(express.static("public"));
+app.use(express.static("public"));
+
+// API Routes
+// =============================================================
+app.use(routes);
+
+// Send All Requests To React App
+// =============================================================
+app.get("*", function(req, res) {
+  res.sendFile(path.join(__dirname, "./client/build/index.html"));
+});
 
 // Routes
 // =============================================================
 // require("./routes/html-routes.js")(app);
 // require("./routes/topics-api-routes.js")(app);
-require("./routes/api/users.js")(app);
+// require("./routes/api")(app);
 // require("./routes/choices-api-routes.js")(app);
 
 // Syncing DB & Start Express
