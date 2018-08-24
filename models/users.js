@@ -1,22 +1,14 @@
 // Requiring bcrypt for password hashing. Using the bcrypt-nodejs version as the regular bcrypt module
 // sometimes causes errors on Windows machines
 var bcrypt = require("bcrypt-nodejs");
+const CONSTS = require("../helpers/siteConstants");
 
 module.exports = function(sequelize, DataTypes) {
-
     var Users = sequelize.define("Users", {
         user_name: {
             type: DataTypes.STRING,
             allowNull: false,
             unique: true
-        },
-        first_name: {
-          type: DataTypes.STRING,
-          allowNull: false
-        },
-        last_name: {
-          type: DataTypes.STRING,
-          allowNull: false
         },
         email: {
           type: DataTypes.STRING,
@@ -28,7 +20,7 @@ module.exports = function(sequelize, DataTypes) {
           type: DataTypes.STRING,
           allowNull: false,
           validate: {
-            len: [7]
+            len: [2]
           }
         },
         user_photo: {
@@ -65,6 +57,17 @@ module.exports = function(sequelize, DataTypes) {
 };
 
 /*
+
+  fields taken out of user table
+
+        first_name: {
+          type: DataTypes.STRING,
+          allowNull: true
+        },
+        last_name: {
+          type: DataTypes.STRING,
+          allowNull: true
+        },
 
 ,
         // ============================================================================

@@ -9,8 +9,6 @@ module.exports = {
       return queryInterface.bulkInsert('Users', [
       {
         user_name: "ffflores",
-        first_name: "Fabian",
-        last_name: "Flores",
         email: "ffflores1@outlook.com",
         user_pw: "1234567",
         user_type: "Admin",
@@ -19,8 +17,6 @@ module.exports = {
       },
       {
         user_name: "User One",
-        first_name: "User",
-        last_name: "One",
         email: "user_one@example.com",
         user_pw: "1234567",
         user_type: "User",
@@ -29,8 +25,6 @@ module.exports = {
       }, 
       {
         user_name: "User Two",
-        first_name: "User",
-        last_name: "Two",
         email: "user_two@example.com",
         user_pw: "1234567",
         user_type: "User",
@@ -39,8 +33,6 @@ module.exports = {
       },
       {
         user_name: "User Three",
-        first_name: "User",
-        last_name: "Three",
         email: "user_three@example.com",
         user_pw: "1234567",
         user_type: "User",
