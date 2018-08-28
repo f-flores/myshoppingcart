@@ -15,7 +15,7 @@ import * as Yup from "yup";
 import {MinUsernameLength, MaxUsernameLength, MinPasswordLength} from "../constants/Consts";
 
 class Signup extends Component {
-  constructor({values, errors, handleChange, touched}) {
+  constructor({values, errors, handleChange, touched, isSubmitting}) {
     super();
     this.state = {
       success: false
@@ -35,16 +35,12 @@ class Signup extends Component {
       this.setState(obj);
   }
 
-  handleInputChange = (event) => {
-    const {name, value} = event.target;
-    this.setState({[name]: value});
-  }
-
   render() {
     const touchedUname = this.props.touched.username;
     const touchedEmail = this.props.touched.email;
     const touchedPword = this.props.touched.password;
     const touchedPconf = this.props.touched.pswrdConfirmation;
+    const isSubmitting = this.props.isSubmitting;
 
     const errorUname = this.props.errors.username;
     const errorEmail = this.props.errors.email;
@@ -85,7 +81,7 @@ class Signup extends Component {
               : touchedPconf ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
           </div>
 
-          <button type="submit" className="btn btn-lg btn-primary">Sign Up</button>
+          <button disabled={ isSubmitting } className="btn btn-lg btn-primary">Sign Up</button>
         </Form>
       </div>
     </div>
@@ -117,9 +113,52 @@ const SignupFormik = withFormik({
       .oneOf([Yup.ref('password'), null], "Passwords must match")
       .required("Confirm password missing")
   }),
-  handleSubmit(values) {
-    console.log(values);
-  }
+  handleSubmit(values, {resetForm, setErrors, setSubmitting}) {
+      console.log(values);
+      AUTH
+        .signup({ username: values.username, email: values.email, password: values.password, pswrdConfirmation: values.pswrdConfirmation })
+        .then(res => {
+          console.log("register res.data: ", res.data);
+          this.safeUpdate({ 
+            success: res.data,
+            isLoggedIn: res.data.isLoggedIn,
+            isAdmin: false, 
+            userId: res.data.userId,
+            username: res.data.username,
+            email: res.data.email         
+          })
+          // ------------------------------
+          // callback function to parent
+          // ------------------------------
+          this.props.getSignupResult({
+            isLoggedIn: this.state.isLoggedIn,
+            isAdmin: false, 
+            userId: this.state.userId,
+            username: this.state.username,
+            email: this.state.email
+          }, "/");
+          // Redirect On Successful Sign Up
+          this.safeUpdate({ redirectToReferrer: true });
+        })
+        .catch(err => {
+          console.log(err.response.data);
+          let tempObj = {
+            errorMsg: err.response.data,
+            username: "",
+            password: "",
+            email: "",
+            pswrdConfirmation: "",
+            isLoggedIn: false
+          };
+          this.safeUpdate(tempObj);
+        });
+      this.safeUpdate({            
+        isValidUserName: true,
+        isValidPassword: true,
+        isValidEmail: true,
+        doPasswordsMatch: true
+      });
+    }
 })(Signup);
 
 export default SignupFormik;
