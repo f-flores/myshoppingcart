@@ -144,8 +144,8 @@ const SignupFormik = withFormik({
           console.log(err.response.data);
           let tempObj = {
             errorMsg: err.response.data,
-            username: "",
-            password: "",
+            username: " ",
+            password: " ",
             email: "",
             pswrdConfirmation: "",
             isLoggedIn: false
