@@ -10,7 +10,6 @@ export default {
     // }
     //
     signup: function(userInfo) {
-      // return true;
       return axios.post("/auth/signup", userInfo)
     },
     // credentials: {username: "uname", password: "12345"}
