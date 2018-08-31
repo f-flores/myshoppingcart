@@ -132,9 +132,8 @@ const SignupFormik = withFormik({
       .required("Confirm password missing")
   }),
   handleSubmit(values, {resetForm, setErrors, setSubmitting, setStatus}) {
-      console.log(values);
       AUTH
-        .signup({ username: values.username, email: values.email, password: values.password, pswrdConfirmation: values.pswrdConfirmation })
+        .signup({ user_name: values.username, email: values.email, user_pw: values.password, confirm_pwd: values.pswrdConfirmation })
         .then(res => {
           console.log("register res.data: ", res.data);
           setStatus({success: true});

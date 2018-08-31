@@ -2,6 +2,7 @@
   "name": "mycart",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:3001",
   "dependencies": {
     "@types/yup": "^0.24.9",
     "axios": "^0.18.0",

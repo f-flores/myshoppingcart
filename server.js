@@ -11,7 +11,7 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var session = require("express-session");
 var moment = require("moment");
-const routes = require("./routes");
+let routes = require("./routes");
 
 require("dotenv").config();
 
@@ -37,7 +37,7 @@ app.use(passport.session());
 
 // Setup Handlebars View Engine
 // =============================================================
-var exphbs = require("express-handlebars");
+/* var exphbs = require("express-handlebars");
 app.set("view engine", "handlebars");
 app.engine("handlebars", exphbs({
     "defaultLayout": "main",
@@ -50,7 +50,7 @@ app.engine("handlebars", exphbs({
       // example Monday, May 21, 2018 5:41 PM
       "fmtDate": (date) => moment(date).format("LLLL")
     }
-  }));
+  })); */
 
 
 // Database & Static Directory
@@ -68,11 +68,13 @@ app.get("*", function(req, res) {
   res.sendFile(path.join(__dirname, "./client/build/index.html"));
 });
 
+
 // Routes
 // =============================================================
 // require("./routes/html-routes.js")(app);
 // require("./routes/topics-api-routes.js")(app);
 // require("./routes/api")(app);
+// require("./routes/auth")(app);
 // require("./routes/choices-api-routes.js")(app);
 
 // Syncing DB & Start Express
