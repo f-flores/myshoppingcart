@@ -15,6 +15,7 @@ export default {
     // credentials: {username: "uname", password: "12345"}
     login: function(credentials) {
       return true;
+      // return true;
       // return axios.post("/auth/login", credentials)
     },
     // checks on session existence on backend

@@ -40,12 +40,14 @@ class Signup extends Component {
     const touchedEmail = this.props.touched.email;
     const touchedPword = this.props.touched.password;
     const touchedPconf = this.props.touched.pswrdConfirmation;
+    const touchedAll = touchedUname && touchedEmail && touchedPword && touchedPconf;
     const isSubmitting = this.props.isSubmitting;
 
     const errorUname = this.props.errors.username;
     const errorEmail = this.props.errors.email;
     const errorPword = this.props.errors.password;
     const errorPconf = this.props.errors.pswrdConfirmation;
+    const errorFree = !(errorUname || errorEmail || errorPword || errorPconf);
 
     return (
     <div className="container py-5">
@@ -81,7 +83,7 @@ class Signup extends Component {
               : touchedPconf ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
           </div>
 
-          <button disabled={ isSubmitting } className="btn btn-lg btn-primary">Sign Up</button>
+          <button disabled={ isSubmitting || !errorFree || !touchedAll} className="btn btn-lg btn-primary">Sign Up</button>
         </Form>
       </div>
     </div>
@@ -158,6 +160,7 @@ const SignupFormik = withFormik({
         isValidEmail: true,
         doPasswordsMatch: true
       });
+      setSubmitting(false);
     }
 })(Signup);
 
