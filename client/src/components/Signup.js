@@ -18,12 +18,24 @@ class Signup extends Component {
   constructor({values, errors, handleChange, touched, isSubmitting}) {
     super();
     this.state = {
-      success: false
-    }
+      signupSuccess: false
+    };
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   componentDidMount() {
     this._isMounted = true;
+  }
+
+  // handle formik's form submission within 'inner' component
+  // example: https://github.com/jaredpalmer/formik/issues/312
+  componentDidUpdate(prevProps) {
+    const {success: priorSuccess = false} = prevProps.status || {};
+    const {success: isSuccess = false} = this.props.status || {};
+
+    if (isSuccess && !priorSuccess) {
+      this.handleSubmit();
+    }
   }
 
   UNSAFE_componentWillUnmount() {
@@ -33,6 +45,10 @@ class Signup extends Component {
   safeUpdate(obj) {
     if (this._isMounted)
       this.setState(obj);
+  }
+
+  handleSubmit() {
+    let h1 = "hello";
   }
 
   render() {
@@ -83,7 +99,7 @@ class Signup extends Component {
               : touchedPconf ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
           </div>
 
-          <button disabled={ isSubmitting || !errorFree || !touchedAll} className="btn btn-lg btn-primary">Sign Up</button>
+          <button type="submit" disabled={ isSubmitting || !errorFree || !touchedAll} className="btn btn-lg btn-primary">Sign Up</button>
         </Form>
       </div>
     </div>
@@ -115,12 +131,28 @@ const SignupFormik = withFormik({
       .oneOf([Yup.ref('password'), null], "Passwords must match")
       .required("Confirm password missing")
   }),
-  handleSubmit(values, {resetForm, setErrors, setSubmitting}) {
+  handleSubmit(values, {resetForm, setErrors, setSubmitting, setStatus}) {
       console.log(values);
       AUTH
         .signup({ username: values.username, email: values.email, password: values.password, pswrdConfirmation: values.pswrdConfirmation })
         .then(res => {
           console.log("register res.data: ", res.data);
+          setStatus({success: true});
+          resetForm();
+        })
+        .catch(err => {
+          console.log(err.response.data);
+          setErrors({ email: `Error:  ${err.response.data}` })
+        });
+
+      setSubmitting(false);
+    }
+})(Signup);
+
+export default SignupFormik;
+
+/*
+
           this.safeUpdate({ 
             success: res.data,
             isLoggedIn: res.data.isLoggedIn,
@@ -141,9 +173,14 @@ const SignupFormik = withFormik({
           }, "/");
           // Redirect On Successful Sign Up
           this.safeUpdate({ redirectToReferrer: true });
-        })
-        .catch(err => {
-          console.log(err.response.data);
+
+
+*/
+
+/* 
+
+after first catch(err):
+
           let tempObj = {
             errorMsg: err.response.data,
             username: " ",
@@ -153,15 +190,18 @@ const SignupFormik = withFormik({
             isLoggedIn: false
           };
           this.safeUpdate(tempObj);
-        });
+
+          */
+
+/*
+
+after catch(err) closes:
+
       this.safeUpdate({            
         isValidUserName: true,
         isValidPassword: true,
         isValidEmail: true,
         doPasswordsMatch: true
       });
-      setSubmitting(false);
-    }
-})(Signup);
 
-export default SignupFormik;
+*/
