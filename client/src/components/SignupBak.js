@@ -7,23 +7,18 @@
 import React, {Component} from "react";
 import {Redirect} from "react-router-dom";
 import AUTH from "../utilities/AUTH";
-import { Formik, Form, Field, FormikProps } from "formik";
+import { withFormik, Form, Field } from "formik";
 import * as Yup from "yup";
 
 // import AUTH from "../utilities/AUTH";
 // import {ErrorUserName, ErrorPassword, ErrorEmail, ErrorPasswordMatch} from "./ErrorComponents";
 import {MinUsernameLength, MaxUsernameLength, MinPasswordLength} from "../constants/Consts";
 
-
 class Signup extends Component {
   constructor({values, errors, handleChange, touched, isSubmitting}) {
     super();
     this.state = {
-      signupSuccess: false,
-      username: "",
-      email: "",
-      password: "",
-      pswrdConfirmation: ""
+      signupSuccess: false
     };
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -58,97 +53,59 @@ class Signup extends Component {
     let h1 = "hello";
   }
 
-  validationSchema() {
-    Yup.object().shape({
-      username: Yup.string()
-        .min(MinUsernameLength, `Must be at least ${MinUsernameLength} characters long`)
-        .max(MaxUsernameLength, `Can be at most ${MaxUsernameLength} characters long.`)
-        .required("Must enter username"),
-      email: Yup.string().email("Please enter valid email.").required("Email is required"),
-      password: Yup.string()
-        .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
-        .required("Enter password field"),
-      pswrdConfirmation: Yup.string()
-        .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
-        .oneOf([Yup.ref('password'), null], "Passwords must match")
-        .required("Confirm password missing")
-    })
-  }
-
-  // avoid render callback, see Formik documentation
-  renderSignUp = ({...props}) => {
-    const touchedUname = props.touched.username;
-    const touchedEmail = props.touched.email;
-    const touchedPword = props.touched.password;
-    const touchedPconf = props.touched.pswrdConfirmation;
+  render() {
+    const touchedUname = this.props.touched.username;
+    const touchedEmail = this.props.touched.email;
+    const touchedPword = this.props.touched.password;
+    const touchedPconf = this.props.touched.pswrdConfirmation;
     const touchedAll = touchedUname && touchedEmail && touchedPword && touchedPconf;
 
-    const isSubmitting = props.isSubmitting;
+    const isSubmitting = this.props.isSubmitting;
 
-    const errorUname = props.errors.username;
-    const errorEmail = props.errors.email;
-    const errorPword = props.errors.password;
-    const errorPconf = props.errors.pswrdConfirmation;
+    const errorUname = this.props.errors.username;
+    const errorEmail = this.props.errors.email;
+    const errorPword = this.props.errors.password;
+    const errorPconf = this.props.errors.pswrdConfirmation;
     const errorFree = !(errorUname || errorEmail || errorPword || errorPconf);
-    return(
-    <div className="container py-5">
-      <div className="row justify-content-center text-center">
-    
-        <h1 className="col-12">Become a Member Of Our Service</h1>
-        <div className="col-12 col-md-6 my-1">
-        <div className="row mb-2 form-group">
-          <Field type="text" name="username" className="form-control col-sm-8 col-xs-12" placeholder="Enter Username" />
-          { touchedUname && errorUname 
-            ? <p className="col-sm-4 col-xs-12 pt-1 font-weight-bold text-danger small">{errorUname}</p>
-            : touchedUname ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
-        </div>
-
-        <div className="row mb-2 form-group">
-          <Field type="email" name="email" className="form-control col-sm-8 col-xs-12" placeholder="Enter Email" />
-          { touchedEmail && errorEmail 
-            ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errorEmail}</p>
-            : touchedEmail ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
-        </div>
-
-        <div className="row mb-2 form-group">
-          <Field type="password" name="password" className="form-control col-sm-8 col-xs-12" placeholder="Enter Password"/>
-          { touchedPword && errorPword 
-            ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errorPword}</p>
-            : touchedPword ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
-        </div>
-
-        <div className="row mb-2 form-group">
-          <Field type="password" name="pswrdConfirmation" className="form-control col-sm-8 col-xs-12" placeholder="Confirm Password" />
-          { touchedPconf && errorPconf 
-            ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errorPconf}</p>
-            : touchedPconf ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
-        </div>
-
-        <button type="submit" disabled={ isSubmitting || !errorFree || !touchedAll} className="btn btn-lg btn-primary">Sign Up</button>
-        </div>
-      </div>
-    </div>
-    );
-  }
-
-  render() {
 
     return (
+    <div className="container py-5">
+    <div className="row justify-content-center text-center">
+    
+        <h1 className="col-12">Become a Member Of Our Service</h1>
+        <Form className="col-12 col-md-6 my-1">
+          <div className="row mb-2 form-group">
+            <Field type="text" name="username" className="form-control col-sm-8 col-xs-12" placeholder="Enter Username" />
+            { touchedUname && errorUname 
+              ? <p className="col-sm-4 col-xs-12 pt-1 font-weight-bold text-danger small">{errorUname}</p>
+              : touchedUname ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+          </div>
 
-        <Formik 
-          initialValues={{...this.state}}
-          validationSchema={this.validationSchema}
-          render={this.renderSignUp(
-            values,
-            errors,
-            touched,
-            handleChange,
-            handleBlur,
-            handleSubmit,
-            isSubmitting,
-          )}
-        />
+          <div className="row mb-2 form-group">
+            <Field type="email" name="email" className="form-control col-sm-8 col-xs-12" placeholder="Enter Email" />
+            { touchedEmail && errorEmail 
+              ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errorEmail}</p>
+              : touchedEmail ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+          </div>
 
+          <div className="row mb-2 form-group">
+            <Field type="password" name="password" className="form-control col-sm-8 col-xs-12" placeholder="Enter Password"/>
+            { touchedPword && errorPword 
+              ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errorPword}</p>
+              : touchedPword ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+          </div>
+
+          <div className="row mb-2 form-group">
+            <Field type="password" name="pswrdConfirmation" className="form-control col-sm-8 col-xs-12" placeholder="Confirm Password" />
+            { touchedPconf && errorPconf 
+              ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errorPconf}</p>
+              : touchedPconf ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+          </div>
+
+          <button type="submit" disabled={ isSubmitting || !errorFree || !touchedAll} className="btn btn-lg btn-primary">Sign Up</button>
+        </Form>
+      </div>
+    </div>
 
     );
   }
@@ -194,7 +151,7 @@ const SignupFormik = withFormik({
     }
 })(Signup);
 
-export default Signup;
+export default SignupFormik;
 
 /*
 
@@ -248,23 +205,5 @@ after catch(err) closes:
         isValidEmail: true,
         doPasswordsMatch: true
       });
-
-*/
-
-/*
-
-    const touchedUname = this.props.touched.username;
-    const touchedEmail = this.props.touched.email;
-    const touchedPword = this.props.touched.password;
-    const touchedPconf = this.props.touched.pswrdConfirmation;
-    const touchedAll = touchedUname && touchedEmail && touchedPword && touchedPconf;
-
-    const isSubmitting = this.props.isSubmitting;
-
-    const errorUname = this.props.errors.username;
-    const errorEmail = this.props.errors.email;
-    const errorPword = this.props.errors.password;
-    const errorPconf = this.props.errors.pswrdConfirmation;
-    const errorFree = !(errorUname || errorEmail || errorPword || errorPconf);
 
 */
