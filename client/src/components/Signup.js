@@ -17,13 +17,34 @@ import {MinUsernameLength, MaxUsernameLength, MinPasswordLength} from "../consta
 
 class Signup extends Component {
   constructor() {
-    super();
+    super()
+
     this.state = {
+      signupSuccess: false,
       username: "",
       password: "",
       email: "",
       pswrdConfirmation: ""
     }
+
+    this.handleSubmit = this.handleSubmit.bind(this)
+  }
+
+  // handle formik's form submission within 'inner' component
+  // example: https://github.com/jaredpalmer/formik/issues/312
+  componentDidUpdate(prevProps) {
+    const {success: priorSuccess = false} = prevProps.success || {};
+    const {success: isSuccess = false} = this.props.form.success || {};
+    console.log(`in componentDidUpdate username: ${this.state.username}`);
+
+    if (this.state.signupSuccess === true) {
+      console.log(`username: ${this.state.username}`);
+      this.handleSubmit();
+    }
+  }
+
+  handleSubmit() {
+    console.log(`in handleSubmit()`)
   }
 
   render() {
@@ -43,10 +64,12 @@ class Signup extends Component {
                   .required("Must enter username"),
                 email: Yup.string().email("Please enter valid email.").required("Email is required"),
                 password: Yup.string()
-                  .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
+                  .matches(/[a-z]/i,{message: `Include at least one character`})
+                  .matches(/\d+/, {message: `Include at least one digit.`})
+                  .min(MinPasswordLength, `Must be at least ${MinPasswordLength} characters long`)
                   .required("Enter password field"),
                 pswrdConfirmation: Yup.string()
-                  .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
+                  .min(MinPasswordLength, `Must be at least ${MinPasswordLength} characters long`)
                   .oneOf([Yup.ref('password'), null], "Passwords must match")
                   .required("Confirm password missing")
               })
@@ -56,15 +79,37 @@ class Signup extends Component {
               {setSubmitting, setErrors, setStatus, resetForm}
             ) => {
               AUTH
-                .signup({ user_name: values.username, email: values.email, user_pw: values.password, confirm_pwd: values.pswrdConfirmation })
+                .signup({ 
+                  user_name: values.username,
+                  email: values.email,
+                  user_pw: values.password,
+                  confirm_pwd: values.pswrdConfirmation 
+                })
                 .then(res => {
-                  console.log("register res.data: ", res.data);
-                  setStatus({success: true});
-                  resetForm();
+                  console.log("register res.data: ", res.data)
+                  if (res.data === true) {
+                    setStatus({success: true})
+                    values.signupSuccess = true
+                    resetForm()
+                  } else {
+                    setStatus({success: false})
+                    values.signupSuccess = false
+                    if (res.status === 400) {
+                      setErrors({email: `${res.statusMessage}`})
+                      console.log(`code 400`);
+                    } else if (res.data.errors.length > 0) {
+                      const errorArray = res.data.errors;
+                      for (let error of errorArray) {
+                        if (error.path === "user_name")
+                          setErrors({ username: `Username exists, choose another one.` })
+                        else if (error.path === "email")
+                          setErrors({email: `Email already registered. Choose another`})
+                      }
+                    }
+                  }
                 })
                 .catch(err => {
-                  console.log(err.response.data);
-                  setErrors({ email: `Error:  ${err.response.data}` })
+                  setErrors({ signupSuccess: `Error(s):  ${err.response.data}` })
                 });
         
               setSubmitting(false);              
@@ -84,15 +129,15 @@ class Signup extends Component {
                 <input 
                   type="text"
                   name="username"
-                  className="form-control col-sm-8 col-xs-12"
+                  className="form-control col-sm-7 col-xs-12"
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.username}
                   placeholder="Enter Username" 
                 />
               { touched.username && errors.username 
-              ? <p className="col-sm-4 col-xs-12 pt-1 font-weight-bold text-danger small">{errors.username}</p>
-              : touched.username ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+              ? <p className="col-sm-5 col-xs-12 pt-1 font-weight-bold text-danger small">{errors.username}</p>
+              : touched.username ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
             </div>
 
               {/* Enter email field */}
@@ -100,15 +145,15 @@ class Signup extends Component {
                 <input 
                   type="email"
                   name="email"
-                  className="form-control col-sm-8 col-xs-12"
+                  className="form-control col-sm-7 col-xs-12"
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.email}
                   placeholder="Enter Email" 
                 />
                 { touched.email && errors.email 
-                  ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errors.email}</p>
-                  : touched.email ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+                  ? <p className="col-sm-5 col-xs-12 font-weight-bold text-danger small">{errors.email}</p>
+                  : touched.email ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
               </div>
 
               {/* Enter password field */}
@@ -116,15 +161,15 @@ class Signup extends Component {
                 <input 
                   type="password"
                   name="password"
-                  className="form-control col-sm-8 col-xs-12"
+                  className="form-control col-sm-7 col-xs-12"
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.password}
                   placeholder="Enter Password" 
                 />
                 { touched.password && errors.password 
-                  ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errors.password}</p>
-                  : touched.password ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+                  ? <p className="col-sm-5 col-xs-12 font-weight-bold text-danger small">{errors.password}</p>
+                  : touched.password ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
               </div>
 
               {/* Enter confirmation password field */}
@@ -132,15 +177,15 @@ class Signup extends Component {
                 <input 
                   type="password"
                   name="pswrdConfirmation"
-                  className="form-control col-sm-8 col-xs-12"
+                  className="form-control col-sm-7 col-xs-12"
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.pswrdConfirmation}
                   placeholder="Confirm Password" 
                 />
                 { touched.pswrdConfirmation && errors.pswrdConfirmation 
-                  ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errors.pswrdConfirmation}</p>
-                  : touched.pswrdConfirmation ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+                  ? <p className="col-sm-5 col-xs-12 font-weight-bold text-danger small">{errors.pswrdConfirmation}</p>
+                  : touched.pswrdConfirmation ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
               </div>
 
               <button 
@@ -151,7 +196,10 @@ class Signup extends Component {
                 }
                 className="btn btn-lg btn-primary">
                 Sign Up
-              </button>       
+              </button>
+              <br />
+              {/* backend validation */}
+              {errors.signupSuccess ? <p className="col-sm-7 col-xs-12 font-weight-bold text-danger small">{errors.signupSuccess}</p> : null}       
             </form>
           )}
         />
@@ -243,31 +291,31 @@ export default Signup;
     const errorPconf = props.errors.pswrdConfirmation;
     const errorFree = !(errorUname || errorEmail || errorPword || errorPconf);
     return(
-          <Field type="text" name="username" className="form-control col-sm-8 col-xs-12" placeholder="Enter Username" />
+          <Field type="text" name="username" className="form-control col-sm-7 col-xs-12" placeholder="Enter Username" />
           { touchedUname && errorUname 
-            ? <p className="col-sm-4 col-xs-12 pt-1 font-weight-bold text-danger small">{errorUname}</p>
-            : touchedUname ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+            ? <p className="col-sm-5 col-xs-12 pt-1 font-weight-bold text-danger small">{errorUname}</p>
+            : touchedUname ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
         </div>
 
         <div className="row mb-2 form-group">
-          <Field type="email" name="email" className="form-control col-sm-8 col-xs-12" placeholder="Enter Email" />
+          <Field type="email" name="email" className="form-control col-sm-7 col-xs-12" placeholder="Enter Email" />
           { touchedEmail && errorEmail 
-            ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errorEmail}</p>
-            : touchedEmail ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+            ? <p className="col-sm-5 col-xs-12 font-weight-bold text-danger small">{errorEmail}</p>
+            : touchedEmail ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
         </div>
 
         <div className="row mb-2 form-group">
-          <Field type="password" name="password" className="form-control col-sm-8 col-xs-12" placeholder="Enter Password"/>
+          <Field type="password" name="password" className="form-control col-sm-7 col-xs-12" placeholder="Enter Password"/>
           { touchedPword && errorPword 
-            ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errorPword}</p>
-            : touchedPword ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+            ? <p className="col-sm-5 col-xs-12 font-weight-bold text-danger small">{errorPword}</p>
+            : touchedPword ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
         </div>
 
         <div className="row mb-2 form-group">
-          <Field type="password" name="pswrdConfirmation" className="form-control col-sm-8 col-xs-12" placeholder="Confirm Password" />
+          <Field type="password" name="pswrdConfirmation" className="form-control col-sm-7 col-xs-12" placeholder="Confirm Password" />
           { touchedPconf && errorPconf 
-            ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errorPconf}</p>
-            : touchedPconf ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+            ? <p className="col-sm-5 col-xs-12 font-weight-bold text-danger small">{errorPconf}</p>
+            : touchedPconf ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
         </div>
 
         <button type="submit" disabled={ isSubmitting || !errorFree || !touchedAll} className="btn btn-lg btn-primary">Sign Up</button>
@@ -419,5 +467,26 @@ after catch(err) closes:
     let h1 = "hello";
   }
 
+
+ */
+
+ /*
+
+            validationSchema={
+              Yup.object().shape({
+                username: Yup.string()
+                  .min(MinUsernameLength, `Must be at least ${MinUsernameLength} characters long`)
+                  .max(MaxUsernameLength, `Can be at most ${MaxUsernameLength} characters long.`)
+                  .required("Must enter username"),
+                email: Yup.string().email("Please enter valid email.").required("Email is required"),
+                password: Yup.string()
+                  .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
+                  .required("Enter password field"),
+                pswrdConfirmation: Yup.string()
+                  .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
+                  .oneOf([Yup.ref('password'), null], "Passwords must match")
+                  .required("Confirm password missing")
+              })
+            }
 
  */

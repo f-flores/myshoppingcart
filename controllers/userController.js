@@ -6,7 +6,7 @@
 
 require("dotenv").config();
 
-const Const = require("../helpers/siteConstants");
+let CONSTS = require("../helpers/siteConstants");
 const db = require("../models");
 const passport = require("../config/passport");
 const vlib = require("../helpers/validationFns");
@@ -31,7 +31,6 @@ module.exports = {
   createUser: function(req, res) {
     // console.log(`max username length ${MAX_USERNAME_LENGTH}`);
     let signupSuccess = true,
-    noDuplicateUserName = false,
     errorText = "";
 
     // Create a new instance of formidable to handle the request info
@@ -45,47 +44,47 @@ module.exports = {
       console.log(files.photo); */
 
       // check email validity
-      // db.createUser(req, res)
-      if (vlib.validateEmail(req.body.email)) {
-        signupSuccess = true;
-      } else {
-        errorText += "Please enter valid email.<br />";
+      if (vlib.validateEmail(req.body.email) === false) {
+        errorText += "Please enter valid email.  ";
         signupSuccess = false;
       }
 
       // check password validity
-      if (vlib.validatePassword(req.body.user_pw)) {
-        signupSuccess = true;
-      } else {
+      if (vlib.validatePassword(req.body.user_pw) === false) {
         errorText += "Please enter valid password. Must be at least " +
-                    Const.MIN_PASSWORD_LENGTH +
-                    " characters long and have at least one digit and one alphabetic character.<br />";
+                    CONSTS.MIN_PASSWORD_LENGTH +
+                    " characters long and have at least one digit and one alphabetic character.  ";
         signupSuccess = false;
       }
 
       // check if passwords match
-      if (req.body.user_pw === req.body.confirm_pwd) {
-        signupSuccess = true;
-      } else {
-        errorText += "Passwords do not match. Please enter them again.<br />";
+      if (req.body.user_pw !== req.body.confirm_pwd) {
+        errorText += "Passwords do not match. Please enter them again.  ";
         signupSuccess = false;
       }
 
-      // TODO: check if email already exists in database
+      // first signup check
+      if (!signupSuccess) {
+        res.status(400).end(errorText);
+      } 
+
+      // check if user name or email already exists in database
+      db.Users.findOne({
+        "where": {user_name: req.body.user_name}
+      }).then(function(dbUsers){
+        if (dbUsers) {
+          res.status(400).end("User name already exists. Please choose another username.")
+        }
+      })
+
       db.Users.findOne({
         "where": {email: req.body.email}
       }).then(function(dbUsers){
         if (dbUsers) {
-          noDuplicateUserName = false;
-          errorText += "Duplicate email.<br>";
-        } else {
-          noDuplicateUserName = true;
-        }
-
-        if (!signupSuccess) {
-          res.statusMessage = errorText;
-          res.status(400).end();
-        } else if (files) {
+          res.status(400).end("Duplicate email. Please choose different email.");
+        } 
+        
+        if (files) {
           if (files.photo) {
             // upload file to cloudinary, which'll return an object for the new image
             cloudinary.uploader.upload(files.photo.path, function (result) {
@@ -123,8 +122,6 @@ module.exports = {
           });
         }
       });
-
-   // });
 
     }
 };

@@ -1,10 +1,14 @@
-// Minimum username length
-const MIN_LENGTH_USERNAME = 2;
 
-// Maximum username length
-const MAX_LENGTH_USERNAME = 10;
 
-// Minimum password length
-const MIN_PASSWORD_LENGTH = 2;
+module.exports = {
+  // Minimum username length
+  MIN_LENGTH_USERNAME: 2,
 
-const MAX_NAME_LENGTH = 100;
+  // Maximum username length
+  MAX_LENGTH_USERNAME: 10,
+
+  // Minimum password length
+  MIN_PASSWORD_LENGTH: 3,
+
+  MAX_NAME_LENGTH: 100
+}
