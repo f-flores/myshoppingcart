@@ -15,127 +15,152 @@ import * as Yup from "yup";
 import {MinUsernameLength, MaxUsernameLength, MinPasswordLength} from "../constants/Consts";
 
 
-const Signup = () => (
-  <div className="container py-5">
-    <div className="row justify-content-center text-center">
+class Signup extends Component {
+  constructor() {
+    super();
+    this.state = {
+      username: "",
+      password: "",
+      email: "",
+      pswrdConfirmation: ""
+    }
+  }
 
-    <h1 className="col-12">Become a Member Of Our Service</h1>
-    <div className="col-12 col-md-6 my-1">
-        <Formik
-          initialValues={{
-            username: "",
-            email: "",
-            password: "",
-            pswrdConfirmation: ""
-          }}
-          validationSchema={
-            Yup.object().shape({
-              username: Yup.string()
-                .min(MinUsernameLength, `Must be at least ${MinUsernameLength} characters long`)
-                .max(MaxUsernameLength, `Can be at most ${MaxUsernameLength} characters long.`)
-                .required("Must enter username"),
-              email: Yup.string().email("Please enter valid email.").required("Email is required"),
-              password: Yup.string()
-                .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
-                .required("Enter password field"),
-              pswrdConfirmation: Yup.string()
-                .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
-                .oneOf([Yup.ref('password'), null], "Passwords must match")
-                .required("Confirm password missing")
-            })
-          }
-          render={({
-            values,
-            errors,
-            touched,
-            handleChange,
-            handleBlur,
-            handleSubmit,
-            isSubmitting
-          }) => (
-              <form onSubmit={handleSubmit}>
-                {/* Enter username field */}
-                <div className="row mb-2 form-group">
-                  <input 
-                    type="text"
-                    name="username"
-                    className="form-control col-sm-8 col-xs-12"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    value={values.username}
-                    placeholder="Enter Username" 
-                  />
-                { touched.username && errors.username 
-                ? <p className="col-sm-4 col-xs-12 pt-1 font-weight-bold text-danger small">{errors.username}</p>
-                : touched.username ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+  render() {
+    return(
+    <div className="container py-5">
+      <div className="row justify-content-center text-center">
+
+      <h1 className="col-12">Become a Member Of Our Service</h1>
+      <div className="col-12 col-md-6 my-1">
+          <Formik
+            initialValues={{...this.state}}
+            validationSchema={
+              Yup.object().shape({
+                username: Yup.string()
+                  .min(MinUsernameLength, `Must be at least ${MinUsernameLength} characters long`)
+                  .max(MaxUsernameLength, `Can be at most ${MaxUsernameLength} characters long.`)
+                  .required("Must enter username"),
+                email: Yup.string().email("Please enter valid email.").required("Email is required"),
+                password: Yup.string()
+                  .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
+                  .required("Enter password field"),
+                pswrdConfirmation: Yup.string()
+                  .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
+                  .oneOf([Yup.ref('password'), null], "Passwords must match")
+                  .required("Confirm password missing")
+              })
+            }
+            onSubmit={(
+              values,
+              {setSubmitting, setErrors, setStatus, resetForm}
+            ) => {
+              AUTH
+                .signup({ user_name: values.username, email: values.email, user_pw: values.password, confirm_pwd: values.pswrdConfirmation })
+                .then(res => {
+                  console.log("register res.data: ", res.data);
+                  setStatus({success: true});
+                  resetForm();
+                })
+                .catch(err => {
+                  console.log(err.response.data);
+                  setErrors({ email: `Error:  ${err.response.data}` })
+                });
+        
+              setSubmitting(false);              
+            }}
+            render={({
+              values,
+              errors,
+              touched,
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              isSubmitting
+            }) => (
+            <form onSubmit={handleSubmit}>
+              {/* Enter username field */}
+              <div className="row mb-2 form-group">
+                <input 
+                  type="text"
+                  name="username"
+                  className="form-control col-sm-8 col-xs-12"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  value={values.username}
+                  placeholder="Enter Username" 
+                />
+              { touched.username && errors.username 
+              ? <p className="col-sm-4 col-xs-12 pt-1 font-weight-bold text-danger small">{errors.username}</p>
+              : touched.username ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+            </div>
+
+              {/* Enter email field */}
+              <div className="row mb-2 form-group">
+                <input 
+                  type="email"
+                  name="email"
+                  className="form-control col-sm-8 col-xs-12"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  value={values.email}
+                  placeholder="Enter Email" 
+                />
+                { touched.email && errors.email 
+                  ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errors.email}</p>
+                  : touched.email ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
               </div>
 
-                {/* Enter email field */}
-                <div className="row mb-2 form-group">
-                  <input 
-                    type="email"
-                    name="email"
-                    className="form-control col-sm-8 col-xs-12"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    value={values.email}
-                    placeholder="Enter Email" 
-                  />
-                  { touched.email && errors.email 
-                    ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errors.email}</p>
-                    : touched.email ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
-                </div>
+              {/* Enter password field */}
+              <div className="row mb-2 form-group">
+                <input 
+                  type="password"
+                  name="password"
+                  className="form-control col-sm-8 col-xs-12"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  value={values.password}
+                  placeholder="Enter Password" 
+                />
+                { touched.password && errors.password 
+                  ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errors.password}</p>
+                  : touched.password ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+              </div>
 
-                {/* Enter password field */}
-                <div className="row mb-2 form-group">
-                  <input 
-                    type="password"
-                    name="password"
-                    className="form-control col-sm-8 col-xs-12"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    value={values.password}
-                    placeholder="Enter Password" 
-                  />
-                  { touched.password && errors.password 
-                    ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errors.password}</p>
-                    : touched.password ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
-                </div>
+              {/* Enter confirmation password field */}
+              <div className="row mb-2 form-group">
+                <input 
+                  type="password"
+                  name="pswrdConfirmation"
+                  className="form-control col-sm-8 col-xs-12"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  value={values.pswrdConfirmation}
+                  placeholder="Confirm Password" 
+                />
+                { touched.pswrdConfirmation && errors.pswrdConfirmation 
+                  ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errors.pswrdConfirmation}</p>
+                  : touched.pswrdConfirmation ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+              </div>
 
-                {/* Enter confirmation password field */}
-                <div className="row mb-2 form-group">
-                  <input 
-                    type="password"
-                    name="pswrdConfirmation"
-                    className="form-control col-sm-8 col-xs-12"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    value={values.pswrdConfirmation}
-                    placeholder="Confirm Password" 
-                  />
-                  { touched.pswrdConfirmation && errors.pswrdConfirmation 
-                    ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errors.pswrdConfirmation}</p>
-                    : touched.pswrdConfirmation ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
-                </div>
-
-                <button 
-                  type="submit"
-                  errorFree = {!(errors.username || errors.email || errors.password || errors.pswrdConfirmation)}
-                  touchedAll = {touched.username && touched.email && touched.password && touched.pswrdConfirmation}
-                  disabled={ isSubmitting }
-                  className="btn btn-lg btn-primary">
-                  Sign Up
-                </button>       
-              </form>
-            )
-          }
-
+              <button 
+                type="submit"
+                disabled={ isSubmitting ||
+                  (errors.username || errors.email || errors.password || errors.pswrdConfirmation) ||
+                  !(touched.username || touched.email || touched.password || touched.pswrdConfirmation)
+                }
+                className="btn btn-lg btn-primary">
+                Sign Up
+              </button>       
+            </form>
+          )}
         />
 
+      </div>
+      </div>
     </div>
-    </div>
-  </div>
-)
+  )}
+}
 
 /*
 const SignupFormik = withFormik({
@@ -207,6 +232,8 @@ export default Signup;
     const touchedPword = props.touched.password;
     const touchedPconf = props.touched.pswrdConfirmation;
     const touchedAll = touchedUname && touchedEmail && touchedPword && touchedPconf;
+     ||
+                  !(touched.username && touched.email && touched.password && touched.pswrdConfirmation)
 
     const isSubmitting = props.isSubmitting;
 
