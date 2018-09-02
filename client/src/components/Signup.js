@@ -7,7 +7,7 @@
 import React, {Component} from "react";
 import {Redirect} from "react-router-dom";
 import AUTH from "../utilities/AUTH";
-import { Formik, Form, Field, FormikProps } from "formik";
+import { Formik } from "formik";
 import * as Yup from "yup";
 
 // import AUTH from "../utilities/AUTH";
@@ -15,48 +15,173 @@ import * as Yup from "yup";
 import {MinUsernameLength, MaxUsernameLength, MinPasswordLength} from "../constants/Consts";
 
 
-class Signup extends Component {
-  constructor({values, errors, handleChange, touched, isSubmitting}) {
-    super();
-    this.state = {
-      signupSuccess: false,
-      username: "",
-      email: "",
-      password: "",
-      pswrdConfirmation: ""
-    };
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
+const Signup = () => (
+  <div className="container py-5">
+    <div className="row justify-content-center text-center">
 
-  componentDidMount() {
-    this._isMounted = true;
-  }
+    <h1 className="col-12">Become a Member Of Our Service</h1>
+    <div className="col-12 col-md-6 my-1">
+        <Formik
+          initialValues={{
+            username: "",
+            email: "",
+            password: "",
+            pswrdConfirmation: ""
+          }}
+          validationSchema={
+            Yup.object().shape({
+              username: Yup.string()
+                .min(MinUsernameLength, `Must be at least ${MinUsernameLength} characters long`)
+                .max(MaxUsernameLength, `Can be at most ${MaxUsernameLength} characters long.`)
+                .required("Must enter username"),
+              email: Yup.string().email("Please enter valid email.").required("Email is required"),
+              password: Yup.string()
+                .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
+                .required("Enter password field"),
+              pswrdConfirmation: Yup.string()
+                .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
+                .oneOf([Yup.ref('password'), null], "Passwords must match")
+                .required("Confirm password missing")
+            })
+          }
+          render={({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            isSubmitting
+          }) => (
+              <form onSubmit={handleSubmit}>
+                {/* Enter username field */}
+                <div className="row mb-2 form-group">
+                  <input 
+                    type="text"
+                    name="username"
+                    className="form-control col-sm-8 col-xs-12"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.username}
+                    placeholder="Enter Username" 
+                  />
+                { touched.username && errors.username 
+                ? <p className="col-sm-4 col-xs-12 pt-1 font-weight-bold text-danger small">{errors.username}</p>
+                : touched.username ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+              </div>
 
-  // handle formik's form submission within 'inner' component
-  // example: https://github.com/jaredpalmer/formik/issues/312
-  componentDidUpdate(prevProps, {...values}) {
-    const {success: priorSuccess = false} = prevProps.status || {};
-    const {success: isSuccess = false} = this.props.status || {};
-    // console.log(`username: ${this.props.touched.username}`);
+                {/* Enter email field */}
+                <div className="row mb-2 form-group">
+                  <input 
+                    type="email"
+                    name="email"
+                    className="form-control col-sm-8 col-xs-12"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.email}
+                    placeholder="Enter Email" 
+                  />
+                  { touched.email && errors.email 
+                    ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errors.email}</p>
+                    : touched.email ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+                </div>
 
-    if (isSuccess && !priorSuccess) {
-      console.log(`username: ${values.username}`);
-      this.handleSubmit();
+                {/* Enter password field */}
+                <div className="row mb-2 form-group">
+                  <input 
+                    type="password"
+                    name="password"
+                    className="form-control col-sm-8 col-xs-12"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.password}
+                    placeholder="Enter Password" 
+                  />
+                  { touched.password && errors.password 
+                    ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errors.password}</p>
+                    : touched.password ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+                </div>
+
+                {/* Enter confirmation password field */}
+                <div className="row mb-2 form-group">
+                  <input 
+                    type="password"
+                    name="pswrdConfirmation"
+                    className="form-control col-sm-8 col-xs-12"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.pswrdConfirmation}
+                    placeholder="Confirm Password" 
+                  />
+                  { touched.pswrdConfirmation && errors.pswrdConfirmation 
+                    ? <p className="col-sm-4 col-xs-12 font-weight-bold text-danger small">{errors.pswrdConfirmation}</p>
+                    : touched.pswrdConfirmation ? <i className="col-sm-4 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+                </div>
+
+                <button 
+                  type="submit"
+                  errorFree = {!(errors.username || errors.email || errors.password || errors.pswrdConfirmation)}
+                  touchedAll = {touched.username && touched.email && touched.password && touched.pswrdConfirmation}
+                  disabled={ isSubmitting }
+                  className="btn btn-lg btn-primary">
+                  Sign Up
+                </button>       
+              </form>
+            )
+          }
+
+        />
+
+    </div>
+    </div>
+  </div>
+)
+
+/*
+const SignupFormik = withFormik({
+  mapPropsToValues({username, email, password, pswrdConfirmation}) {
+    return {
+      username: username || "",
+      email: email || "",
+      password: password || "",
+      pswrdConfirmation: pswrdConfirmation || ""
     }
-  }
+  },
+  validationSchema: Yup.object().shape({
+    username: Yup.string()
+      .min(MinUsernameLength, `Must be at least ${MinUsernameLength} characters long`)
+      .max(MaxUsernameLength, `Can be at most ${MaxUsernameLength} characters long.`)
+      .required("Must enter username"),
+    email: Yup.string().email("Please enter valid email.").required("Email is required"),
+    password: Yup.string()
+      .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
+      .required("Enter password field"),
+    pswrdConfirmation: Yup.string()
+      .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
+      .oneOf([Yup.ref('password'), null], "Passwords must match")
+      .required("Confirm password missing")
+  }),
+  handleSubmit(values, {resetForm, setErrors, setSubmitting, setStatus}) {
+      AUTH
+        .signup({ user_name: values.username, email: values.email, user_pw: values.password, confirm_pwd: values.pswrdConfirmation })
+        .then(res => {
+          console.log("register res.data: ", res.data);
+          setStatus({success: true});
+          resetForm();
+        })
+        .catch(err => {
+          console.log(err.response.data);
+          setErrors({ email: `Error:  ${err.response.data}` })
+        });
 
-  UNSAFE_componentWillUnmount() {
-    this._isMounted = false;
-  }
+      setSubmitting(false);
+    }
+})(Signup);
+*/
 
-  safeUpdate(obj) {
-    if (this._isMounted)
-      this.setState(obj);
-  }
+export default Signup;
 
-  handleSubmit() {
-    let h1 = "hello";
-  }
+/*
 
   validationSchema() {
     Yup.object().shape({
@@ -91,12 +216,6 @@ class Signup extends Component {
     const errorPconf = props.errors.pswrdConfirmation;
     const errorFree = !(errorUname || errorEmail || errorPword || errorPconf);
     return(
-    <div className="container py-5">
-      <div className="row justify-content-center text-center">
-    
-        <h1 className="col-12">Become a Member Of Our Service</h1>
-        <div className="col-12 col-md-6 my-1">
-        <div className="row mb-2 form-group">
           <Field type="text" name="username" className="form-control col-sm-8 col-xs-12" placeholder="Enter Username" />
           { touchedUname && errorUname 
             ? <p className="col-sm-4 col-xs-12 pt-1 font-weight-bold text-danger small">{errorUname}</p>
@@ -138,6 +257,7 @@ class Signup extends Component {
         <Formik 
           initialValues={{...this.state}}
           validationSchema={this.validationSchema}
+
           render={this.renderSignUp(
             values,
             errors,
@@ -152,49 +272,8 @@ class Signup extends Component {
 
     );
   }
-}
 
-const SignupFormik = withFormik({
-  mapPropsToValues({username, email, password, pswrdConfirmation}) {
-    return {
-      username: username || "",
-      email: email || "",
-      password: password || "",
-      pswrdConfirmation: pswrdConfirmation || ""
-    }
-  },
-  validationSchema: Yup.object().shape({
-    username: Yup.string()
-      .min(MinUsernameLength, `Must be at least ${MinUsernameLength} characters long`)
-      .max(MaxUsernameLength, `Can be at most ${MaxUsernameLength} characters long.`)
-      .required("Must enter username"),
-    email: Yup.string().email("Please enter valid email.").required("Email is required"),
-    password: Yup.string()
-      .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
-      .required("Enter password field"),
-    pswrdConfirmation: Yup.string()
-      .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
-      .oneOf([Yup.ref('password'), null], "Passwords must match")
-      .required("Confirm password missing")
-  }),
-  handleSubmit(values, {resetForm, setErrors, setSubmitting, setStatus}) {
-      AUTH
-        .signup({ user_name: values.username, email: values.email, user_pw: values.password, confirm_pwd: values.pswrdConfirmation })
-        .then(res => {
-          console.log("register res.data: ", res.data);
-          setStatus({success: true});
-          resetForm();
-        })
-        .catch(err => {
-          console.log(err.response.data);
-          setErrors({ email: `Error:  ${err.response.data}` })
-        });
-
-      setSubmitting(false);
-    }
-})(Signup);
-
-export default Signup;
+*/
 
 /*
 
@@ -268,3 +347,50 @@ after catch(err) closes:
     const errorFree = !(errorUname || errorEmail || errorPword || errorPconf);
 
 */
+
+/*
+
+  constructor({values, errors, handleChange, touched, isSubmitting}) {
+    super();
+    this.state = {
+      signupSuccess: false,
+      username: "",
+      email: "",
+      password: "",
+      pswrdConfirmation: ""
+    };
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  componentDidMount() {
+    this._isMounted = true;
+  }
+
+  // handle formik's form submission within 'inner' component
+  // example: https://github.com/jaredpalmer/formik/issues/312
+  componentDidUpdate(prevProps, {...values}) {
+    const {success: priorSuccess = false} = prevProps.status || {};
+    const {success: isSuccess = false} = this.props.status || {};
+    // console.log(`username: ${this.props.touched.username}`);
+
+    if (isSuccess && !priorSuccess) {
+      console.log(`username: ${values.username}`);
+      this.handleSubmit();
+    }
+  }
+
+  UNSAFE_componentWillUnmount() {
+    this._isMounted = false;
+  }
+
+  safeUpdate(obj) {
+    if (this._isMounted)
+      this.setState(obj);
+  }
+
+  handleSubmit() {
+    let h1 = "hello";
+  }
+
+
+ */
