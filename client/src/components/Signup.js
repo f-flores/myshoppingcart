@@ -17,7 +17,7 @@ import {MinUsernameLength, MaxUsernameLength, MinPasswordLength} from "../consta
 
 class Signup extends Component {
   constructor(props) {
-    super(props)
+    super(props);
 
     this.state = {
       signupSuccess: false,
@@ -25,24 +25,73 @@ class Signup extends Component {
       password: "",
       email: "",
       pswrdConfirmation: ""
-    }
+    };
 
-    this.handleSubmit = this.handleSubmit.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.signupHandle = null;
   }
 
 
-  handleSubmit() {
-    console.log(`in handleSubmit()`)
-    console.log(`signupSuccess: ${this.state.signupSuccess}`)
+  handleSubmit(obj) {
+    console.log(`in handleSubmit()`);
+    let isAdmin = false;
+    switch (obj.user_type) {
+      case "user":
+        isAdmin = false;
+        break;
+      case "admin":
+        isAdmin = true;
+        break;
+      default:
+        break;
+    }
+    // ------------------------------
+    // callback function to parent
+    // ------------------------------
+    /*
+    this.props.getSignupResult({
+      isLoggedIn: true,
+      isAdmin: isAdmin, 
+      user_id: obj.user_id,
+      user_name: obj.user_name,
+      email: obj.email
+    }, "/");
+    */
+    let tmpObj = {
+      isLoggedIn: true,
+      isAdmin: isAdmin, 
+      user_id: obj.user_id,
+      user_name: obj.user_name,
+      email: obj.email
+    };
+    // Redirect On Successful Sign Up
+    this.setState({ signupSuccess: true });
+    console.log("tmpObj: ", JSON.stringify(tmpObj));
+  }
+
+  handleUnsuccessfulSubmit() {
+    let tmpObj = {
+      isLoggedIn: false,
+      isAdmin: false
+    };
+    // Redirect On Successful Sign Up
+    this.setState({ signupSuccess: false });
+    console.log("tmpObj: ", JSON.stringify(tmpObj));
+  }
+
+  componentWillUnmount() {
+    console.log('from componentWillUnmount');
+    this.signupHandle.cancelToken.cancel();
   }
 
   render() {
-    return(
-    <div className="container py-5">
-      <div className="row justify-content-center text-center">
+    // If Signup was a success, take them to the Home page
+    if (this.state.signupSuccess) {
+      return <Redirect to="/" />;
+    } 
 
-      <h1 className="col-12">Become a Member Of Our Service</h1>
-      <div className="col-12 col-md-6 my-1">
+    return(
+
           <Formik
             initialValues={{...this.state}}
             validationSchema={
@@ -67,6 +116,7 @@ class Signup extends Component {
               values,
               {setSubmitting, setErrors, setStatus, resetForm}
             ) => {
+              this.signupHandle =
               AUTH
                 .signup({ 
                   user_name: values.username,
@@ -79,28 +129,17 @@ class Signup extends Component {
                   if (res.data.user_id !== undefined) {
                     setStatus({success: true})
                     resetForm()
-                    this.handleSubmit()
+                    this.handleSubmit(res.data)
                   } else {
                     setStatus({success: false})
-                    console.log(`res.data: ${res.data}`)
-                    console.log(JSON.stringify(res.data))
-                    if (typeof res.status === "number") {
-                      setErrors({signupSuccess: `${res.statusMessage}`})
-                    } else if (res.data.errors.length > 0) {
-                      const errorArray = res.data.errors;
-                      for (let error of errorArray) {
-                        if (error.path === "user_name")
-                          setErrors({ username: `Username exists, choose another one.` })
-                        else if (error.path === "email")
-                          setErrors({email: `Email already registered. Choose another`})
-                      }
-                    }
+                    setErrors({signupSuccess: `${res.statusMessage}`})
                   }
                   setSubmitting(false); 
                 })
                 .catch(err => {
                   setStatus({success: false})
                   setErrors(err.response.data)
+                  this.handleUnsuccessfulSubmit()
                   setSubmitting(false); 
                 });             
             }}
@@ -166,91 +205,24 @@ class Signup extends Component {
           )}
         />
 
-      </div>
-      </div>
-    </div>
+
   )}
 }
 
-
-/*
-
-
-*/
-
-
-/*
-const SignupFormik = withFormik({
-  mapPropsToValues({username, email, password, pswrdConfirmation}) {
-    return {
-      username: username || "",
-      email: email || "",
-      password: password || "",
-      pswrdConfirmation: pswrdConfirmation || ""
-    }
-  },
-  validationSchema: Yup.object().shape({
-    username: Yup.string()
-      .min(MinUsernameLength, `Must be at least ${MinUsernameLength} characters long`)
-      .max(MaxUsernameLength, `Can be at most ${MaxUsernameLength} characters long.`)
-      .required("Must enter username"),
-    email: Yup.string().email("Please enter valid email.").required("Email is required"),
-    password: Yup.string()
-      .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
-      .required("Enter password field"),
-    pswrdConfirmation: Yup.string()
-      .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
-      .oneOf([Yup.ref('password'), null], "Passwords must match")
-      .required("Confirm password missing")
-  }),
-  handleSubmit(values, {resetForm, setErrors, setSubmitting, setStatus}) {
-      AUTH
-        .signup({ user_name: values.username, email: values.email, user_pw: values.password, confirm_pwd: values.pswrdConfirmation })
-        .then(res => {
-          console.log("register res.data: ", res.data);
-          setStatus({success: true});
-          resetForm();
-        })
-        .catch(err => {
-          console.log(err.response.data);
-          setErrors({ email: `Error:  ${err.response.data}` })
-        });
-
-      setSubmitting(false);
-    }
-})(Signup);
-*/
-
 export default Signup;
 
-/*
-
-  render() {
-
-    return (
-
-        <Formik 
-          initialValues={{...this.state}}
-          validationSchema={this.validationSchema}
-
-          render={this.renderSignUp(
-            values,
-            errors,
-            touched,
-            handleChange,
-            handleBlur,
-            handleSubmit,
-            isSubmitting,
-          )}
-        />
-
-
-    );
-  }
-
-*/
 
 /*
+
+<div className="container py-5">
+<div className="row justify-content-center text-center">
+
+<h1 className="col-12">Become a Member Of Our Service</h1>
+<div className="col-12 col-md-6 my-1">
+
+      </div>
+      </div>
+    </div>
 
           this.safeUpdate({ 
             success: res.data,
@@ -302,24 +274,6 @@ after catch(err) closes:
         isValidEmail: true,
         doPasswordsMatch: true
       });
-
-*/
-
-/*
-
-    const touchedUname = this.props.touched.username;
-    const touchedEmail = this.props.touched.email;
-    const touchedPword = this.props.touched.password;
-    const touchedPconf = this.props.touched.pswrdConfirmation;
-    const touchedAll = touchedUname && touchedEmail && touchedPword && touchedPconf;
-
-    const isSubmitting = this.props.isSubmitting;
-
-    const errorUname = this.props.errors.username;
-    const errorEmail = this.props.errors.email;
-    const errorPword = this.props.errors.password;
-    const errorPconf = this.props.errors.pswrdConfirmation;
-    const errorFree = !(errorUname || errorEmail || errorPword || errorPconf);
 
 */
 
