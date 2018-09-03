@@ -23,8 +23,6 @@ cloudinary.config({
 let Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 
-
-
 // Defining database authentication methods for User table
 module.exports = {
 
@@ -34,11 +32,11 @@ module.exports = {
       errorText = "";
 
     // Create a new instance of formidable to handle the request info
-    const form = new formidable.IncomingForm();
+    const form = new formidable.IncomingForm()
 
     // parse information for form fields and incoming files
     // handler until cloudinary is integrated
-    let files = null;
+    let files = null
 
     /*     form.parse(req, function (err, fields, files) {
           console.log(fields);
@@ -46,22 +44,22 @@ module.exports = {
 
     // check email validity
     if (vlib.validateEmail(req.body.email) === false) {
-      errorText += "Please enter valid email.  ";
-      signupSuccess = false;
+      errorText += "Please enter valid email.  "
+      signupSuccess = false
     }
 
     // check password validity
     if (vlib.validatePassword(req.body.user_pw) === false) {
       errorText += "Please enter valid password. Must be at least " +
         CONSTS.MIN_PASSWORD_LENGTH +
-        " characters long and have at least one digit and one alphabetic character.  ";
-      signupSuccess = false;
+        " characters long and have at least one digit and one alphabetic character.  "
+      signupSuccess = false
     }
 
     // check if passwords match
     if (req.body.user_pw !== req.body.confirm_pwd) {
-      errorText += "Passwords do not match. Please enter them again.  ";
-      signupSuccess = false;
+      errorText += "Passwords do not match. Please enter them again.  "
+      signupSuccess = false
     }
 
     // first signup check
@@ -72,7 +70,7 @@ module.exports = {
       })
     } else {
 
-      // check if user name or email already exists in database
+      // check if user name already exists in database
       db.Users.findOne({
           "where": {
             user_name: req.body.user_name
@@ -81,9 +79,10 @@ module.exports = {
         .then(function (dbUsers) {
           if (dbUsers) {
             res.status(500).send({
-              username: "User already exists. Choose another."
+              username: "User already exists. Enter another."
             })
           } else {
+            // check if email already exists in database
             db.Users.findOne({
               "where": {
                 email: req.body.email
@@ -91,10 +90,11 @@ module.exports = {
             }).then(function (dbUsers) {
               if (dbUsers) {
                 res.status(500).send({
-                  email: "Duplicate email. Please choose different email."
+                  email: "Duplicate. Choose another email."
                 });
               }
 
+              // have this conditional until cloudinary is integrated
               if (files) {
                 if (files.photo) {
                   // upload file to cloudinary, which'll return an object for the new image
@@ -113,8 +113,8 @@ module.exports = {
                       res.json(true);
                       // res.json("/");
                     }).catch(function (err) {
-                      console.log(err);
-                      res.json(err);
+                      console.log(err)
+                      res.json(err)
                     });
                   });
                 }
@@ -135,11 +135,10 @@ module.exports = {
                   console.log(`printError: ${err}`);
                   res.status(400).end({
                     signupSuccess: err
-                  });
-                  // res.status(422).json(err.errors[0].message);
-                });
+                  })
+                })
               }
-            });
+            })
           }
         })
         .catch(function (err) {
@@ -148,8 +147,6 @@ module.exports = {
           })
         })
     }
-
-
   }
-};
+}
 

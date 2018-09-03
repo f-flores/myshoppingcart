@@ -45,7 +45,24 @@ class Signup extends Component {
       <div className="col-12 col-md-6 my-1">
           <Formik
             initialValues={{...this.state}}
-
+            validationSchema={
+              Yup.object().shape({
+                username: Yup.string()
+                  .min(MinUsernameLength, `Must be at least ${MinUsernameLength} characters long`)
+                  .max(MaxUsernameLength, `Can be at most ${MaxUsernameLength} characters long.`)
+                  .required("Must enter username"),
+                email: Yup.string().email("Please enter valid email.").required("Email is required"),
+                password: Yup.string()
+                  .matches(/[a-z]/i,{message: `Include at least one character`})
+                  .matches(/\d+/, {message: `Include at least one digit.`})
+                  .min(MinPasswordLength, `Must be at least ${MinPasswordLength} characters long`)
+                  .required("Enter password field"),
+                pswrdConfirmation: Yup.string()
+                  .min(MinPasswordLength, `Must be at least ${MinPasswordLength} characters long`)
+                  .oneOf([Yup.ref('password'), null], "Passwords must match")
+                  .required("Confirm password missing")
+              })
+            }
             onSubmit={(
               values,
               {setSubmitting, setErrors, setStatus, resetForm}
@@ -157,24 +174,7 @@ class Signup extends Component {
 
 
 /*
-            validationSchema={
-              Yup.object().shape({
-                username: Yup.string()
-                  .min(MinUsernameLength, `Must be at least ${MinUsernameLength} characters long`)
-                  .max(MaxUsernameLength, `Can be at most ${MaxUsernameLength} characters long.`)
-                  .required("Must enter username"),
-                email: Yup.string().email("Please enter valid email.").required("Email is required"),
-                password: Yup.string()
-                  .matches(/[a-z]/i,{message: `Include at least one character`})
-                  .matches(/\d+/, {message: `Include at least one digit.`})
-                  .min(MinPasswordLength, `Must be at least ${MinPasswordLength} characters long`)
-                  .required("Enter password field"),
-                pswrdConfirmation: Yup.string()
-                  .min(MinPasswordLength, `Must be at least ${MinPasswordLength} characters long`)
-                  .oneOf([Yup.ref('password'), null], "Passwords must match")
-                  .required("Confirm password missing")
-              })
-            }
+
 
 */
 
