@@ -65,23 +65,28 @@ module.exports = {
 
       // first signup check
       if (!signupSuccess) {
-        res.status(400).end(errorText);
+        res.statusMessage = errorText
+        res.status(400).end(errorText)
       } 
 
       // check if user name or email already exists in database
       db.Users.findOne({
         "where": {user_name: req.body.user_name}
-      }).then(function(dbUsers){
+      })
+      .then(function(dbUsers){
         if (dbUsers) {
-          res.status(400).end("User name already exists. Please choose another username.")
+          res.status(500).send({username: "User name already exists. Choose another."})
         }
+      })
+      .catch(function(err){
+        res.status(400).send("Unable to process request")
       })
 
       db.Users.findOne({
         "where": {email: req.body.email}
       }).then(function(dbUsers){
         if (dbUsers) {
-          res.status(400).end("Duplicate email. Please choose different email.");
+          res.status(500).send({email: "Duplicate email. Please choose different email."});
         } 
         
         if (files) {
@@ -112,12 +117,17 @@ module.exports = {
             user_name: req.body.user_name,
             email: req.body.email,
             user_pw: req.body.user_pw,
-          }).then(function () {
-            res.json(true);
+          }).then(function(userData) {
+            // TODO: add nodemailer here
+            res.json({
+              user_id: userData.id,
+              user_name: userData.user_name,
+              user_type: userData.user_type
+            });
             // res.redirect(307, "/api/login");
           }).catch(function (err) {
-            console.log(err);
-            res.json(err);
+            console.log(`hello: ${err}`);
+            res.status(422).end("ok");
             // res.status(422).json(err.errors[0].message);
           });
         }

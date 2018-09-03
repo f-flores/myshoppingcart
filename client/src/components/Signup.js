@@ -7,7 +7,7 @@
 import React, {Component} from "react";
 import {Redirect} from "react-router-dom";
 import AUTH from "../utilities/AUTH";
-import { Formik } from "formik";
+import { Formik, Field } from "formik";
 import * as Yup from "yup";
 
 // import AUTH from "../utilities/AUTH";
@@ -16,8 +16,8 @@ import {MinUsernameLength, MaxUsernameLength, MinPasswordLength} from "../consta
 
 
 class Signup extends Component {
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
 
     this.state = {
       signupSuccess: false,
@@ -30,21 +30,10 @@ class Signup extends Component {
     this.handleSubmit = this.handleSubmit.bind(this)
   }
 
-  // handle formik's form submission within 'inner' component
-  // example: https://github.com/jaredpalmer/formik/issues/312
-  componentDidUpdate(prevProps) {
-    const {success: priorSuccess = false} = prevProps.success || {};
-    const {success: isSuccess = false} = this.props.form.success || {};
-    console.log(`in componentDidUpdate username: ${this.state.username}`);
-
-    if (this.state.signupSuccess === true) {
-      console.log(`username: ${this.state.username}`);
-      this.handleSubmit();
-    }
-  }
 
   handleSubmit() {
     console.log(`in handleSubmit()`)
+    console.log(`signupSuccess: ${this.state.signupSuccess}`)
   }
 
   render() {
@@ -87,15 +76,16 @@ class Signup extends Component {
                 })
                 .then(res => {
                   console.log("register res.data: ", res.data)
-                  if (res.data === true) {
+                  if (res.data.user_id !== undefined) {
                     setStatus({success: true})
-                    values.signupSuccess = true
                     resetForm()
+                    this.handleSubmit()
                   } else {
                     setStatus({success: false})
-                    values.signupSuccess = false
+                    console.log(`res.data: ${res.data}`)
+                    console.log(JSON.stringify(res.data))
                     if (res.status === 400) {
-                      setErrors({email: `${res.statusMessage}`})
+                      setErrors({signupSuccess: `${res.statusMessage}`})
                       console.log(`code 400`);
                     } else if (res.data.errors.length > 0) {
                       const errorArray = res.data.errors;
@@ -107,12 +97,13 @@ class Signup extends Component {
                       }
                     }
                   }
+                  setSubmitting(false); 
                 })
                 .catch(err => {
-                  setErrors({ signupSuccess: `Error(s):  ${err.response.data}` })
-                });
-        
-              setSubmitting(false);              
+                  setStatus({success: false})
+                  setErrors(err.response.data)
+                  setSubmitting(false); 
+                });             
             }}
             render={({
               values,
@@ -126,31 +117,17 @@ class Signup extends Component {
             <form onSubmit={handleSubmit}>
               {/* Enter username field */}
               <div className="row mb-2 form-group">
-                <input 
-                  type="text"
-                  name="username"
-                  className="form-control col-sm-7 col-xs-12"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values.username}
-                  placeholder="Enter Username" 
-                />
-              { touched.username && errors.username 
-              ? <p className="col-sm-5 col-xs-12 pt-1 font-weight-bold text-danger small">{errors.username}</p>
-              : touched.username ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
-            </div>
+                <Field type="text" name="username" placeholder="Enter User Name"
+                       className="form-control col-sm-7 col-xs-12" />
+                { touched.username && errors.username 
+                ? <p className="col-sm-5 col-xs-12 pt-1 font-weight-bold text-danger small">{errors.username}</p>
+                : touched.username ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
+              </div>
 
               {/* Enter email field */}
               <div className="row mb-2 form-group">
-                <input 
-                  type="email"
-                  name="email"
-                  className="form-control col-sm-7 col-xs-12"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values.email}
-                  placeholder="Enter Email" 
-                />
+                <Field type="email" name="email" placeholder="Enter email"
+                  className="form-control col-sm-7 col-xs-12" />
                 { touched.email && errors.email 
                   ? <p className="col-sm-5 col-xs-12 font-weight-bold text-danger small">{errors.email}</p>
                   : touched.email ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
@@ -158,15 +135,8 @@ class Signup extends Component {
 
               {/* Enter password field */}
               <div className="row mb-2 form-group">
-                <input 
-                  type="password"
-                  name="password"
-                  className="form-control col-sm-7 col-xs-12"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values.password}
-                  placeholder="Enter Password" 
-                />
+                <Field type="password" name="password" placeholder="Enter Password"
+                  className="form-control col-sm-7 col-xs-12" />
                 { touched.password && errors.password 
                   ? <p className="col-sm-5 col-xs-12 font-weight-bold text-danger small">{errors.password}</p>
                   : touched.password ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
@@ -174,15 +144,8 @@ class Signup extends Component {
 
               {/* Enter confirmation password field */}
               <div className="row mb-2 form-group">
-                <input 
-                  type="password"
-                  name="pswrdConfirmation"
-                  className="form-control col-sm-7 col-xs-12"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values.pswrdConfirmation}
-                  placeholder="Confirm Password" 
-                />
+                <Field type="password" name="pswrdConfirmation" placeholder="Confirm Password"
+                  className="form-control col-sm-7 col-xs-12" />
                 { touched.pswrdConfirmation && errors.pswrdConfirmation 
                   ? <p className="col-sm-5 col-xs-12 font-weight-bold text-danger small">{errors.pswrdConfirmation}</p>
                   : touched.pswrdConfirmation ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
@@ -255,75 +218,6 @@ const SignupFormik = withFormik({
 export default Signup;
 
 /*
-
-  validationSchema() {
-    Yup.object().shape({
-      username: Yup.string()
-        .min(MinUsernameLength, `Must be at least ${MinUsernameLength} characters long`)
-        .max(MaxUsernameLength, `Can be at most ${MaxUsernameLength} characters long.`)
-        .required("Must enter username"),
-      email: Yup.string().email("Please enter valid email.").required("Email is required"),
-      password: Yup.string()
-        .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
-        .required("Enter password field"),
-      pswrdConfirmation: Yup.string()
-        .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
-        .oneOf([Yup.ref('password'), null], "Passwords must match")
-        .required("Confirm password missing")
-    })
-  }
-
-  // avoid render callback, see Formik documentation
-  renderSignUp = ({...props}) => {
-    const touchedUname = props.touched.username;
-    const touchedEmail = props.touched.email;
-    const touchedPword = props.touched.password;
-    const touchedPconf = props.touched.pswrdConfirmation;
-    const touchedAll = touchedUname && touchedEmail && touchedPword && touchedPconf;
-     ||
-                  !(touched.username && touched.email && touched.password && touched.pswrdConfirmation)
-
-    const isSubmitting = props.isSubmitting;
-
-    const errorUname = props.errors.username;
-    const errorEmail = props.errors.email;
-    const errorPword = props.errors.password;
-    const errorPconf = props.errors.pswrdConfirmation;
-    const errorFree = !(errorUname || errorEmail || errorPword || errorPconf);
-    return(
-          <Field type="text" name="username" className="form-control col-sm-7 col-xs-12" placeholder="Enter Username" />
-          { touchedUname && errorUname 
-            ? <p className="col-sm-5 col-xs-12 pt-1 font-weight-bold text-danger small">{errorUname}</p>
-            : touchedUname ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
-        </div>
-
-        <div className="row mb-2 form-group">
-          <Field type="email" name="email" className="form-control col-sm-7 col-xs-12" placeholder="Enter Email" />
-          { touchedEmail && errorEmail 
-            ? <p className="col-sm-5 col-xs-12 font-weight-bold text-danger small">{errorEmail}</p>
-            : touchedEmail ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
-        </div>
-
-        <div className="row mb-2 form-group">
-          <Field type="password" name="password" className="form-control col-sm-7 col-xs-12" placeholder="Enter Password"/>
-          { touchedPword && errorPword 
-            ? <p className="col-sm-5 col-xs-12 font-weight-bold text-danger small">{errorPword}</p>
-            : touchedPword ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
-        </div>
-
-        <div className="row mb-2 form-group">
-          <Field type="password" name="pswrdConfirmation" className="form-control col-sm-7 col-xs-12" placeholder="Confirm Password" />
-          { touchedPconf && errorPconf 
-            ? <p className="col-sm-5 col-xs-12 font-weight-bold text-danger small">{errorPconf}</p>
-            : touchedPconf ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
-        </div>
-
-        <button type="submit" disabled={ isSubmitting || !errorFree || !touchedAll} className="btn btn-lg btn-primary">Sign Up</button>
-        </div>
-      </div>
-    </div>
-    );
-  }
 
   render() {
 
