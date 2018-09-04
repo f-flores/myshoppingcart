@@ -33,7 +33,6 @@ class Signup extends Component {
 
 
   handleSubmit(obj) {
-    console.log(`in handleSubmit()`);
     let isAdmin = false;
     switch (obj.user_type) {
       case "user":
@@ -64,24 +63,25 @@ class Signup extends Component {
       user_name: obj.user_name,
       email: obj.email
     };
-    console.log("in handleSubmit() tmpObj: ", JSON.stringify(tmpObj));
-    // let result = AUTH.cancelRequest()
 
+    // The promise calls the cancel request API to avoid memory leaks
     let cancelPromise = new Promise((resolve, reject) => {
       let result = AUTH.cancelRequest();
       if (result) {
-        resolve("success");
+        resolve("Successful cancel request.");
+      } else {
+        reject("Unsuccessful cancel request.");
       }
     });
-    // = AUTH.cancelRequest();
-    cancelPromise.then((msg) => {
-      console.log(`cancelled message: ${msg}`);
+
+    cancelPromise
+    .then((msg) => {
+      console.log(`${msg}`);
       this.setState({signupSuccess: true});
     })
-    .catch(
+    .catch((reason) => {
       // Log the rejection reason
-     (reason) => {
-          console.log('Handle rejected promise ('+reason+') here.');
+        console.log(`Handle rejected promise ${reason} here.`);
     });
     
   }
@@ -92,28 +92,9 @@ class Signup extends Component {
       isAdmin: false
     };
 
-    // this.setState({ signupSuccess: false });
     console.log("in handleUnsuccessfulSubmit() tmpObj: ", JSON.stringify(tmpObj));
   }
 
-  componentWillUnmount() {
-    console.log("from componentWillUnmount cancel request");
-    let cancelPromise = new Promise((resolve, reject) => {
-      let result = AUTH.cancelRequest();
-      if (result) {
-        resolve("success");
-      }
-    });
-    // = AUTH.cancelRequest();
-    cancelPromise.then((msg) => {
-      console.log(`cancelled message: ${msg}`);
-    })
-    .catch(
-      // Log the rejection reason
-     (reason) => {
-          console.log('Handle rejected promise ('+reason+') here.');
-    });
-  }
 
   render() {
     // Redirect to home page On Successful Sign Up
@@ -146,52 +127,34 @@ class Signup extends Component {
         values,
         {setSubmitting, setErrors, setStatus, resetForm}
       ) => {
-        // try {
-          AUTH
-          .signup({ 
-            user_name: values.username,
-            email: values.email,
-            user_pw: values.password,
-            confirm_pwd: values.pswrdConfirmation 
-          })
-          .then(res => {
-            console.log("register res.data: ", res.data);
-            // console.log("this.signal.token: ", JSON.stringify(this.signal.token));
-            if (res.data.user_id !== undefined) {
-              setStatus({success: true});
-              resetForm();
-              this.handleSubmit(res.data);
-            } else {
-              setStatus({success: false})
-              setErrors({signupSuccess: `${res.statusMessage}`})
-            }
-            setSubmitting(false); 
-          })
-          .catch(err => {
+        AUTH
+        .signup({ 
+          user_name: values.username,
+          email: values.email,
+          user_pw: values.password,
+          confirm_pwd: values.pswrdConfirmation 
+        })
+        .then(res => {
+          if (res.data.user_id !== undefined) {
+            setStatus({success: true});
+            resetForm();
+            this.handleSubmit(res.data);
+          } else {
             setStatus({success: false})
-            // setErrors(err.response.data)
-            console.log("catch err in signup", err);
-            this.handleUnsuccessfulSubmit()
-            setSubmitting(false); 
-          });
-        // }
-        // catch(err) {
-        //  if (axios.Cancel()) {
-        //    console.log(`Error: ${err.message}`);
-        //  } else {
-            // this.setState({ signupSuccess: false });
-         // }
-        // }
-        // finally {
-          //
-        // }       
+            setErrors({signupSuccess: `${res.statusMessage}`})
+          }
+          setSubmitting(false); 
+        })
+        .catch(err => {
+          setStatus({success: false});
+          setErrors(err.response.data);
+          this.handleUnsuccessfulSubmit();
+          setSubmitting(false); 
+        });     
       }}
       render={({
-        values,
         errors,
         touched,
-        handleChange,
-        handleBlur,
         handleSubmit,
         isSubmitting
       }) => (
@@ -259,137 +222,3 @@ class Signup extends Component {
 }
 
 export default Signup;
-
-
-/*
-
-<div className="container py-5">
-<div className="row justify-content-center text-center">
-
-<h1 className="col-12">Become a Member Of Our Service</h1>
-<div className="col-12 col-md-6 my-1">
-
-      </div>
-      </div>
-    </div>
-
-          this.safeUpdate({ 
-            success: res.data,
-            isLoggedIn: res.data.isLoggedIn,
-            isAdmin: false, 
-            userId: res.data.userId,
-            username: res.data.username,
-            email: res.data.email         
-          })
-          // ------------------------------
-          // callback function to parent
-          // ------------------------------
-          this.props.getSignupResult({
-            isLoggedIn: this.state.isLoggedIn,
-            isAdmin: false, 
-            userId: this.state.userId,
-            username: this.state.username,
-            email: this.state.email
-          }, "/");
-          // Redirect On Successful Sign Up
-          this.safeUpdate({ redirectToReferrer: true });
-
-
-*/
-
-/* 
-
-after first catch(err):
-
-          let tempObj = {
-            errorMsg: err.response.data,
-            username: " ",
-            password: " ",
-            email: "",
-            pswrdConfirmation: "",
-            isLoggedIn: false
-          };
-          this.safeUpdate(tempObj);
-
-          */
-
-/*
-
-after catch(err) closes:
-
-      this.safeUpdate({            
-        isValidUserName: true,
-        isValidPassword: true,
-        isValidEmail: true,
-        doPasswordsMatch: true
-      });
-
-*/
-
-/*
-
-  constructor({values, errors, handleChange, touched, isSubmitting}) {
-    super();
-    this.state = {
-      signupSuccess: false,
-      username: "",
-      email: "",
-      password: "",
-      pswrdConfirmation: ""
-    };
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-
-  componentDidMount() {
-    this._isMounted = true;
-  }
-
-  // handle formik's form submission within 'inner' component
-  // example: https://github.com/jaredpalmer/formik/issues/312
-  componentDidUpdate(prevProps, {...values}) {
-    const {success: priorSuccess = false} = prevProps.status || {};
-    const {success: isSuccess = false} = this.props.status || {};
-    // console.log(`username: ${this.props.touched.username}`);
-
-    if (isSuccess && !priorSuccess) {
-      console.log(`username: ${values.username}`);
-      this.handleSubmit();
-    }
-  }
-
-  UNSAFE_componentWillUnmount() {
-    this._isMounted = false;
-  }
-
-  safeUpdate(obj) {
-    if (this._isMounted)
-      this.setState(obj);
-  }
-
-  handleSubmit() {
-    let h1 = "hello";
-  }
-
-
- */
-
- /*
-
-            validationSchema={
-              Yup.object().shape({
-                username: Yup.string()
-                  .min(MinUsernameLength, `Must be at least ${MinUsernameLength} characters long`)
-                  .max(MaxUsernameLength, `Can be at most ${MaxUsernameLength} characters long.`)
-                  .required("Must enter username"),
-                email: Yup.string().email("Please enter valid email.").required("Email is required"),
-                password: Yup.string()
-                  .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
-                  .required("Enter password field"),
-                pswrdConfirmation: Yup.string()
-                  .min(MinPasswordLength, `Password must be at least ${MinPasswordLength} characters long`)
-                  .oneOf([Yup.ref('password'), null], "Passwords must match")
-                  .required("Confirm password missing")
-              })
-            }
-
- */
