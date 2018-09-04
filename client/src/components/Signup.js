@@ -63,8 +63,6 @@ class Signup extends Component {
       user_name: obj.user_name,
       email: obj.email
     };
-    // Redirect On Successful Sign Up
-    this.setState({ signupSuccess: true });
     console.log("tmpObj: ", JSON.stringify(tmpObj));
   }
 
@@ -73,8 +71,8 @@ class Signup extends Component {
       isLoggedIn: false,
       isAdmin: false
     };
-    // Redirect On Successful Sign Up
-    this.setState({ signupSuccess: false });
+
+    // this.setState({ signupSuccess: false });
     console.log("tmpObj: ", JSON.stringify(tmpObj));
   }
 
@@ -84,7 +82,7 @@ class Signup extends Component {
   }
 
   render() {
-    // If Signup was a success, take them to the Home page
+    // Redirect to home page On Successful Sign Up
     if (this.state.signupSuccess) {
       return <Redirect to="/" />;
     } 
@@ -125,14 +123,17 @@ class Signup extends Component {
             cancelToken: this.signal.token
           })
           .then(res => {
-            console.log("register res.data: ", res.data)
+            console.log("register res.data: ", res.data);
+            console.log("this.signal.token: ", JSON.stringify(this.signal.token));
             if (res.data.user_id !== undefined) {
-              setStatus({success: true})
-              resetForm()
-              this.handleSubmit(res.data)
+              setStatus({success: true});
+              resetForm();
+              this.handleSubmit(res.data);
+              this.setState({ signupSuccess: true });
             } else {
               setStatus({success: false})
               setErrors({signupSuccess: `${res.statusMessage}`})
+              this.setState({ signupSuccess: false });
             }
             setSubmitting(false); 
           })
@@ -140,15 +141,15 @@ class Signup extends Component {
             setStatus({success: false})
             setErrors(err.response.data)
             this.handleUnsuccessfulSubmit()
+            this.setState({ signupSuccess: false });
             setSubmitting(false); 
           });
         }
         catch(err) {
           if (axios.Cancel()) {
-            console.log(`axios.Cancel() Error: ${err.message}`); // prints API error
-          } else {
             console.log(`Error: ${err.message}`);
-            // set isSubmitting false
+          } else {
+            this.setState({ signupSuccess: false });
           }
         }
         finally {
