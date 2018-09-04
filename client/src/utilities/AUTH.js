@@ -13,10 +13,12 @@ export default {
     // }
     //
     signup: function(userInfo, myCancelToken) {
-      return axios.post("/auth/signup", 
+      const data = axios.post("/auth/signup", 
         userInfo,
         {cancelToken: myCancelToken,}
-    )},
+      );
+      return data;
+    },
     // credentials: {username: "uname", password: "12345"}
     login: function(credentials) {
       return true;
