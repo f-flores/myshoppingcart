@@ -9,8 +9,7 @@ import {Redirect} from "react-router-dom";
 import AUTH from "../utilities/AUTH";
 import { Formik, Field } from "formik";
 import * as Yup from "yup";
-
-// import AUTH from "../utilities/AUTH";
+import axios from "axios";
 // import {ErrorUserName, ErrorPassword, ErrorEmail, ErrorPasswordMatch} from "./ErrorComponents";
 import {MinUsernameLength, MaxUsernameLength, MinPasswordLength} from "../constants/Consts";
 
@@ -28,7 +27,7 @@ class Signup extends Component {
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.signupHandle = null;
+    this.signal = axios.CancelToken.source();
   }
 
 
@@ -80,8 +79,8 @@ class Signup extends Component {
   }
 
   componentWillUnmount() {
-    console.log('from componentWillUnmount');
-    this.signupHandle.cancelToken.cancel();
+    console.log("from componentWillUnmount");
+    this.signal.cancel("Api is being cancelled.");
   }
 
   render() {
@@ -91,67 +90,85 @@ class Signup extends Component {
     } 
 
     return(
-
-          <Formik
-            initialValues={{...this.state}}
-            validationSchema={
-              Yup.object().shape({
-                username: Yup.string()
-                  .min(MinUsernameLength, `Must be at least ${MinUsernameLength} characters long`)
-                  .max(MaxUsernameLength, `Can be at most ${MaxUsernameLength} characters long.`)
-                  .required("Must enter username"),
-                email: Yup.string().email("Please enter valid email.").required("Email is required"),
-                password: Yup.string()
-                  .matches(/[a-z]/i,{message: `Include at least one character`})
-                  .matches(/\d+/, {message: `Include at least one digit.`})
-                  .min(MinPasswordLength, `Must be at least ${MinPasswordLength} characters long`)
-                  .required("Enter password field"),
-                pswrdConfirmation: Yup.string()
-                  .min(MinPasswordLength, `Must be at least ${MinPasswordLength} characters long`)
-                  .oneOf([Yup.ref('password'), null], "Passwords must match")
-                  .required("Confirm password missing")
-              })
+    <Formik
+      initialValues={{...this.state}}
+      validationSchema={
+        Yup.object().shape({
+          username: Yup.string()
+            .min(MinUsernameLength, `Must be at least ${MinUsernameLength} characters long`)
+            .max(MaxUsernameLength, `Can be at most ${MaxUsernameLength} characters long.`)
+            .required("Must enter username"),
+          email: Yup.string().email("Please enter valid email.").required("Email is required"),
+          password: Yup.string()
+            .matches(/[a-z]/i,{message: `Include at least one character`})
+            .matches(/\d+/, {message: `Include at least one digit.`})
+            .min(MinPasswordLength, `Must be at least ${MinPasswordLength} characters long`)
+            .required("Enter password field"),
+          pswrdConfirmation: Yup.string()
+            .min(MinPasswordLength, `Must be at least ${MinPasswordLength} characters long`)
+            .oneOf([Yup.ref('password'), null], "Passwords must match")
+            .required("Confirm password missing")
+        })
+      }
+      onSubmit={(
+        values,
+        {setSubmitting, setErrors, setStatus, resetForm}
+      ) => {
+        try {
+          AUTH
+          .signup({ 
+            user_name: values.username,
+            email: values.email,
+            user_pw: values.password,
+            confirm_pwd: values.pswrdConfirmation 
+          },{
+            cancelToken: this.signal.token
+          })
+          .then(res => {
+            console.log("register res.data: ", res.data)
+            if (res.data.user_id !== undefined) {
+              setStatus({success: true})
+              resetForm()
+              this.handleSubmit(res.data)
+            } else {
+              setStatus({success: false})
+              setErrors({signupSuccess: `${res.statusMessage}`})
             }
-            onSubmit={(
-              values,
-              {setSubmitting, setErrors, setStatus, resetForm}
-            ) => {
-              this.signupHandle =
-              AUTH
-                .signup({ 
-                  user_name: values.username,
-                  email: values.email,
-                  user_pw: values.password,
-                  confirm_pwd: values.pswrdConfirmation 
-                })
-                .then(res => {
-                  console.log("register res.data: ", res.data)
-                  if (res.data.user_id !== undefined) {
-                    setStatus({success: true})
-                    resetForm()
-                    this.handleSubmit(res.data)
-                  } else {
-                    setStatus({success: false})
-                    setErrors({signupSuccess: `${res.statusMessage}`})
-                  }
-                  setSubmitting(false); 
-                })
-                .catch(err => {
-                  setStatus({success: false})
-                  setErrors(err.response.data)
-                  this.handleUnsuccessfulSubmit()
-                  setSubmitting(false); 
-                });             
-            }}
-            render={({
-              values,
-              errors,
-              touched,
-              handleChange,
-              handleBlur,
-              handleSubmit,
-              isSubmitting
-            }) => (
+            setSubmitting(false); 
+          })
+          .catch(err => {
+            setStatus({success: false})
+            setErrors(err.response.data)
+            this.handleUnsuccessfulSubmit()
+            setSubmitting(false); 
+          });
+        }
+        catch(err) {
+          if (axios.Cancel()) {
+            console.log(`axios.Cancel() Error: ${err.message}`); // prints API error
+          } else {
+            console.log(`Error: ${err.message}`);
+            // set isSubmitting false
+          }
+        }
+        finally {
+          //
+        }       
+      }}
+      render={({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        handleSubmit,
+        isSubmitting
+      }) => (
+      <div className="container py-5">
+        <div className="row justify-content-center text-center">
+          
+          <h1 className="col-12">Become a Member Of Our Service</h1>
+          <div className="col-12 col-md-6 my-1">
             <form onSubmit={handleSubmit}>
               {/* Enter username field */}
               <div className="row mb-2 form-group">
@@ -202,10 +219,11 @@ class Signup extends Component {
               {/* backend validation */}
               {errors.signupSuccess ? <p className="col-sm-7 col-xs-12 font-weight-bold text-danger small">{errors.signupSuccess}</p> : null}       
             </form>
-          )}
+          </div>
+          </div>
+        </div>
+        )}
         />
-
-
   )}
 }
 

@@ -14,8 +14,7 @@ export default {
     //
     signup: function(userInfo) {
       return axios.post("/auth/signup", 
-        userInfo,
-        {cancelToken: source.token}
+        userInfo
     )},
     // credentials: {username: "uname", password: "12345"}
     login: function(credentials) {
