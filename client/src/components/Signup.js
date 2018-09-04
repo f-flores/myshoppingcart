@@ -9,12 +9,14 @@ import {Redirect} from "react-router-dom";
 import AUTH from "../utilities/AUTH";
 import { Formik, Field } from "formik";
 import * as Yup from "yup";
-import axios from "axios";
+// import axios from "axios";
 // import {ErrorUserName, ErrorPassword, ErrorEmail, ErrorPasswordMatch} from "./ErrorComponents";
 import {MinUsernameLength, MaxUsernameLength, MinPasswordLength} from "../constants/Consts";
 
 
 class Signup extends Component {
+  // signal = axios.CancelToken.source();
+
   constructor(props) {
     super(props);
 
@@ -27,8 +29,6 @@ class Signup extends Component {
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.CancelToken = axios.CancelToken;
-    this.signal = this.CancelToken.source();
   }
 
 
@@ -65,7 +65,25 @@ class Signup extends Component {
       email: obj.email
     };
     console.log("in handleSubmit() tmpObj: ", JSON.stringify(tmpObj));
-    this.setState({ signupSuccess: true });
+    // let result = AUTH.cancelRequest()
+
+    let cancelPromise = new Promise((resolve, reject) => {
+      let result = AUTH.cancelRequest();
+      if (result) {
+        resolve("success");
+      }
+    });
+    // = AUTH.cancelRequest();
+    cancelPromise.then((msg) => {
+      console.log(`cancelled message: ${msg}`);
+      this.setState({signupSuccess: true});
+    })
+    .catch(
+      // Log the rejection reason
+     (reason) => {
+          console.log('Handle rejected promise ('+reason+') here.');
+    });
+    
   }
 
   handleUnsuccessfulSubmit() {
@@ -79,8 +97,22 @@ class Signup extends Component {
   }
 
   componentWillUnmount() {
-    console.log("from componentWillUnmount");
-    this.signal.cancel("Api is being cancelled.");
+    console.log("from componentWillUnmount cancel request");
+    let cancelPromise = new Promise((resolve, reject) => {
+      let result = AUTH.cancelRequest();
+      if (result) {
+        resolve("success");
+      }
+    });
+    // = AUTH.cancelRequest();
+    cancelPromise.then((msg) => {
+      console.log(`cancelled message: ${msg}`);
+    })
+    .catch(
+      // Log the rejection reason
+     (reason) => {
+          console.log('Handle rejected promise ('+reason+') here.');
+    });
   }
 
   render() {
@@ -114,17 +146,17 @@ class Signup extends Component {
         values,
         {setSubmitting, setErrors, setStatus, resetForm}
       ) => {
-        try {
+        // try {
           AUTH
           .signup({ 
             user_name: values.username,
             email: values.email,
             user_pw: values.password,
             confirm_pwd: values.pswrdConfirmation 
-          }, this.signal.token)
+          })
           .then(res => {
             console.log("register res.data: ", res.data);
-            console.log("this.signal.token: ", JSON.stringify(this.signal.token));
+            // console.log("this.signal.token: ", JSON.stringify(this.signal.token));
             if (res.data.user_id !== undefined) {
               setStatus({success: true});
               resetForm();
@@ -137,21 +169,22 @@ class Signup extends Component {
           })
           .catch(err => {
             setStatus({success: false})
-            setErrors(err.response.data)
+            // setErrors(err.response.data)
+            console.log("catch err in signup", err);
             this.handleUnsuccessfulSubmit()
             setSubmitting(false); 
           });
-        }
-        catch(err) {
-          if (axios.Cancel()) {
-            console.log(`Error: ${err.message}`);
-          } else {
+        // }
+        // catch(err) {
+        //  if (axios.Cancel()) {
+        //    console.log(`Error: ${err.message}`);
+        //  } else {
             // this.setState({ signupSuccess: false });
-          }
-        }
-        finally {
+         // }
+        // }
+        // finally {
           //
-        }       
+        // }       
       }}
       render={({
         values,
