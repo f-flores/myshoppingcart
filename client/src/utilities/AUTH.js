@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const CancelToken = axios.CancelToken;
-const source = CancelToken.source();
+// const CancelToken = axios.CancelToken;
+// const source = CancelToken.source();
 
 export default {
     // signup new user 
@@ -13,11 +13,16 @@ export default {
     // }
     //
     signup: function(userInfo, myCancelToken) {
-      const data = axios.post("/auth/signup", 
-        userInfo,
-        {cancelToken: myCancelToken,}
-      );
-      return data;
+      // console.log("myCancelToken: ", JSON.stringify(myCancelToken));
+      try {
+        const data = axios.post("/auth/signup", 
+          userInfo,
+          {cancelToken: myCancelToken,}
+        );
+        return data;
+      } catch(err) {
+        throw err;
+      }
     },
     // credentials: {username: "uname", password: "12345"}
     login: function(credentials) {

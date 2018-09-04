@@ -27,7 +27,8 @@ class Signup extends Component {
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.signal = axios.CancelToken.source();
+    this.CancelToken = axios.CancelToken;
+    this.signal = this.CancelToken.source();
   }
 
 
@@ -63,7 +64,8 @@ class Signup extends Component {
       user_name: obj.user_name,
       email: obj.email
     };
-    console.log("tmpObj: ", JSON.stringify(tmpObj));
+    console.log("in handleSubmit() tmpObj: ", JSON.stringify(tmpObj));
+    this.setState({ signupSuccess: true });
   }
 
   handleUnsuccessfulSubmit() {
@@ -73,7 +75,7 @@ class Signup extends Component {
     };
 
     // this.setState({ signupSuccess: false });
-    console.log("tmpObj: ", JSON.stringify(tmpObj));
+    console.log("in handleUnsuccessfulSubmit() tmpObj: ", JSON.stringify(tmpObj));
   }
 
   componentWillUnmount() {
@@ -127,11 +129,9 @@ class Signup extends Component {
               setStatus({success: true});
               resetForm();
               this.handleSubmit(res.data);
-              this.setState({ signupSuccess: true });
             } else {
               setStatus({success: false})
               setErrors({signupSuccess: `${res.statusMessage}`})
-              this.setState({ signupSuccess: false });
             }
             setSubmitting(false); 
           })
@@ -139,7 +139,6 @@ class Signup extends Component {
             setStatus({success: false})
             setErrors(err.response.data)
             this.handleUnsuccessfulSubmit()
-            this.setState({ signupSuccess: false });
             setSubmitting(false); 
           });
         }
@@ -147,7 +146,7 @@ class Signup extends Component {
           if (axios.Cancel()) {
             console.log(`Error: ${err.message}`);
           } else {
-            this.setState({ signupSuccess: false });
+            // this.setState({ signupSuccess: false });
           }
         }
         finally {

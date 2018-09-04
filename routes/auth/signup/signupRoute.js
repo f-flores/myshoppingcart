@@ -9,7 +9,7 @@ var passport = require("../../../config/passport");
 router
   .route("/")
   .get(function(req, res) {console.log("alksdfjioe")})
-  .post(function(req, res) {db.createUser(req, res);})
+  .post(function(req, res, token) {db.createUser(req, res);})
 
 
 // For "/auth/signup/user"
