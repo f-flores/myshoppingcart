@@ -12,7 +12,7 @@ export default {
     //    pswrdConfirmation: 12345Password!
     // }
     //
-    signup: function(userInfo) {
+    signup: function(userInfo, myCancelToken) {
       return axios.post("/auth/signup", 
         userInfo
     )},

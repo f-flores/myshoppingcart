@@ -119,9 +119,7 @@ class Signup extends Component {
             email: values.email,
             user_pw: values.password,
             confirm_pwd: values.pswrdConfirmation 
-          },{
-            cancelToken: this.signal.token
-          })
+          }, this.signal.token)
           .then(res => {
             console.log("register res.data: ", res.data);
             console.log("this.signal.token: ", JSON.stringify(this.signal.token));
