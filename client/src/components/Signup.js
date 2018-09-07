@@ -9,14 +9,11 @@ import {Redirect} from "react-router-dom";
 import AUTH from "../utilities/AUTH";
 import { Formik, Field } from "formik";
 import * as Yup from "yup";
-// import axios from "axios";
-// import {ErrorUserName, ErrorPassword, ErrorEmail, ErrorPasswordMatch} from "./ErrorComponents";
 import {MinUsernameLength, MaxUsernameLength, MinPasswordLength} from "../constants/Consts";
+import {Row, Container, FormGroup, Col, Button} from "reactstrap";
 
 
 class Signup extends Component {
-  // signal = axios.CancelToken.source();
-
   constructor(props) {
     super(props);
 
@@ -44,10 +41,10 @@ class Signup extends Component {
       default:
         break;
     }
+
     // ------------------------------
-    // callback function to parent
+    // getSignupResult is callback function to parent
     // ------------------------------
-    /*
     this.props.getSignupResult({
       isLoggedIn: true,
       isAdmin: isAdmin, 
@@ -55,14 +52,7 @@ class Signup extends Component {
       user_name: obj.user_name,
       email: obj.email
     }, "/");
-    */
-    let tmpObj = {
-      isLoggedIn: true,
-      isAdmin: isAdmin, 
-      user_id: obj.user_id,
-      user_name: obj.user_name,
-      email: obj.email
-    };
+
 
     // The promise calls the cancel request API to avoid memory leaks
     let cancelPromise = new Promise((resolve, reject) => {
@@ -111,12 +101,15 @@ class Signup extends Component {
             .min(MinUsernameLength, `Must be at least ${MinUsernameLength} characters long`)
             .max(MaxUsernameLength, `Can be at most ${MaxUsernameLength} characters long.`)
             .required("Must enter username"),
+
           email: Yup.string().email("Please enter valid email.").required("Email is required"),
+
           password: Yup.string()
             .matches(/[a-z]/i,{message: `Include at least one character`})
             .matches(/\d+/, {message: `Include at least one digit.`})
             .min(MinPasswordLength, `Must be at least ${MinPasswordLength} characters long`)
             .required("Enter password field"),
+
           pswrdConfirmation: Yup.string()
             .min(MinPasswordLength, `Must be at least ${MinPasswordLength} characters long`)
             .oneOf([Yup.ref('password'), null], "Passwords must match")
@@ -135,20 +128,15 @@ class Signup extends Component {
           confirm_pwd: values.pswrdConfirmation 
         })
         .then(res => {
-          if (res.data.user_id !== undefined) {
-            setStatus({success: true});
-            resetForm();
-            this.handleSubmit(res.data);
-          } else {
-            setStatus({success: false})
-            setErrors({signupSuccess: `${res.statusMessage}`})
-          }
+          console.log(JSON.stringify(res.data));
+          setStatus({success: true});
+          resetForm();
+          this.handleSubmit(res.data);
           setSubmitting(false); 
         })
         .catch(err => {
           setStatus({success: false});
           setErrors(err.response.data);
-          this.handleUnsuccessfulSubmit();
           setSubmitting(false); 
         });     
       }}
@@ -158,64 +146,75 @@ class Signup extends Component {
         handleSubmit,
         isSubmitting
       }) => (
-      <div className="container py-5">
-        <div className="row justify-content-center text-center">
-          
-          <h1 className="col-12">Become a Member Of Our Service</h1>
-          <div className="col-12 col-md-6 my-1">
-            <form onSubmit={handleSubmit}>
-              {/* Enter username field */}
-              <div className="row mb-2 form-group">
-                <Field type="text" name="username" placeholder="Enter User Name"
-                       className="form-control col-sm-7 col-xs-12" />
-                { touched.username && errors.username 
-                ? <p className="col-sm-5 col-xs-12 pt-1 font-weight-bold text-danger small">{errors.username}</p>
-                : touched.username ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
-              </div>
+      <Container className="py-5">
+        <Row className="justify-content-center text-center">
+          <Col sm={8}><h1>Become a Member Of Our Service</h1></Col>
+        </Row>
+        <form onSubmit={handleSubmit}>
+        <Row className="justify-content-center my-5">
+          <Col sm={8}>
 
-              {/* Enter email field */}
-              <div className="row mb-2 form-group">
-                <Field type="email" name="email" placeholder="Enter email"
-                  className="form-control col-sm-7 col-xs-12" />
-                { touched.email && errors.email 
-                  ? <p className="col-sm-5 col-xs-12 font-weight-bold text-danger small">{errors.email}</p>
-                  : touched.email ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
-              </div>
+          {/* Enter username field */}
+          <FormGroup row className="mb-4">
+            <Field type="text" name="username" placeholder="Enter User Name" className="form-control col-sm-7 col-xs-12"/>
+            <Col sm={5}>
+              { touched.username && errors.username 
+              ? <p className="pt-1 font-weight-bold text-danger small">{errors.username}</p>
+              : touched.username ? <i className="pt-3 fas fa-check-square text-success"></i> : null}
+            </Col>
+          </FormGroup>
 
-              {/* Enter password field */}
-              <div className="row mb-2 form-group">
-                <Field type="password" name="password" placeholder="Enter Password"
-                  className="form-control col-sm-7 col-xs-12" />
-                { touched.password && errors.password 
-                  ? <p className="col-sm-5 col-xs-12 font-weight-bold text-danger small">{errors.password}</p>
-                  : touched.password ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
-              </div>
+          {/* Enter email field */}
+          <FormGroup className="row mb-4">
+            <Field type="email" name="email" placeholder="Enter email" className="form-control col-sm-7 col-xs-12" />
+            <Col sm={5}>
+              { touched.email && errors.email 
+                ? <p className="font-weight-bold text-danger small">{errors.email}</p>
+                : touched.email ? <i className="pt-3 fas fa-check-square text-success"></i> : null}
+            </Col>
+          </FormGroup>
 
-              {/* Enter confirmation password field */}
-              <div className="row mb-2 form-group">
-                <Field type="password" name="pswrdConfirmation" placeholder="Confirm Password"
-                  className="form-control col-sm-7 col-xs-12" />
-                { touched.pswrdConfirmation && errors.pswrdConfirmation 
-                  ? <p className="col-sm-5 col-xs-12 font-weight-bold text-danger small">{errors.pswrdConfirmation}</p>
-                  : touched.pswrdConfirmation ? <i className="col-sm-5 col-xs-12 pt-3 fas fa-check-square text-success"></i> : null}
-              </div>
+          {/* Enter password field */}
+          <FormGroup className="row mb-4">
+            <Field type="password" name="password" placeholder="Enter Password" className="form-control col-sm-7 col-xs-12" />
+            <Col sm={5}>
+              { touched.password && errors.password 
+                ? <p className="font-weight-bold text-danger small">{errors.password}</p>
+                : touched.password ? <i className="pt-3 fas fa-check-square text-success"></i> : null}
+            </Col>
+          </FormGroup>
 
-              <button 
-                type="submit"
+          {/* Enter confirmation password field */}
+          <FormGroup row className="mb-4">
+            <Field type="password" name="pswrdConfirmation" placeholder="Confirm Password" className="form-control col-sm-7 col-xs-12" />
+            <Col sm={5}>
+            { touched.pswrdConfirmation && errors.pswrdConfirmation 
+              ? <p className="font-weight-bold text-danger small">{errors.pswrdConfirmation}</p>
+              : touched.pswrdConfirmation ? <i className="pt-3 fas fa-check-square text-success"></i> : null}
+            </Col>
+          </FormGroup>
+
+          <FormGroup row>
+            <Col sm={7}>
+              <Button block color="primary" size="lg" type="submit"
                 disabled={ isSubmitting ||
                   (errors.username || errors.email || errors.password || errors.pswrdConfirmation) ||
                   !(touched.username || touched.email || touched.password || touched.pswrdConfirmation)
                 }
-                className="btn btn-lg btn-primary">
+                >
                 Sign Up
-              </button>
-              <br />
-              {/* backend validation */}
-              {errors.signupSuccess ? <p className="col-sm-7 col-xs-12 font-weight-bold text-danger small">{errors.signupSuccess}</p> : null}       
-            </form>
-          </div>
-          </div>
-        </div>
+              </Button>
+            </Col>
+          </FormGroup>
+
+            <br />
+            {/* backend validation */}
+            {errors.signupSuccess ? <p className="col-sm-7 col-xs-12 font-weight-bold text-danger small">{errors.signupSuccess}</p> : null}       
+
+          </Col>
+          </Row>
+          </form>
+        </Container>
         )}
         />
   )}

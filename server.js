@@ -9,8 +9,14 @@
 // =============================================================
 var express = require("express");
 var bodyParser = require("body-parser");
+let mysql2 = require("mysql2");
 var session = require("express-session");
-var moment = require("moment");
+let MySQLStore = require("express-mysql-session")(session);
+
+// var moment = require("moment");
+const logger = require("morgan");
+const	fs = require("fs");
+var path = require("path");
 let routes = require("./routes");
 
 require("dotenv").config();
@@ -23,14 +29,38 @@ var passport = require("./config/passport");
 var app = express();
 var PORT = process.env.PORT || 3001;
 
+// =======================================================================
+// MIDDLEWARE
+// =======================================================================
+// Use morgan logger for logging requests
+var accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), {
+	"flags": "a"
+});
+
+//  Have morgan output to access.log file and to console
+app.use(logger("common", {
+	"stream": accessLogStream
+}));
+app.use(logger("dev"));
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// We need to use sessions to keep track of our user's login status
+let options = {
+  host: process.env.JAWS_HOST || "localhost",
+  port: 3306,
+  user: process.env.JAWS_UNAME || process.env.DBUSER,
+  password: process.env.JAWS_PSWRD || process.env.DBPW,
+  database: process.env.JAWS_DB || process.env.DBDEV
+};
+
+let sessionStore = new MySQLStore(options);
+
 app.use(session({
                   secret: "keyboard cat",
                   resave: true,
-                  saveUninitialized: true 
+                  saveUninitialized: true,
+                  store: sessionStore 
                 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -56,7 +86,14 @@ app.engine("handlebars", exphbs({
 // Database & Static Directory
 // =============================================================
 var db = require("./models");
-app.use(express.static("public"));
+
+// Serve Static Assets On Live (e.g.  Heroku)
+// =============================================================
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("client/build"));
+} else {
+  app.use(express.static("public"));
+}
 
 // API Routes
 // =============================================================

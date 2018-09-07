@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import {BrowserRouter as Router, Route, Switch, Redirect, Link, withRouter} from "react-router-dom";
 
-// import VerticalNav from "./components/VerticalNav";
+import NavMenu from "./NavMenu";
 // import Footer from "./components/Footer";
 // import EntryMessage from "./components/EntryMessage";
 // import Home from "./containers/Home";
@@ -21,27 +21,6 @@ import AUTH from "../utilities/AUTH";
 import logo from "../logo.svg";
 import "../App.css";
 
-
-/* class LScape extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      // --
-      // 'session' variables
-      // ---------------------------
-      isLoggedIn: false,
-      isAdmin: false,
-      isCustomer: false,
-      isEmployee: false,
-      isManager: false,
-      username: "",
-      email: "",
-      userId: "",
-      errorMsg: "",
-      redirectReferrer: false
-    };
-  } */
 
   // Setting State For Login
 /*   LoginResult = (authObj, redirPath) => {
@@ -148,27 +127,59 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
   />
 );
 
+const Home = () => (
+  <div className="justify-content-center">
+    <h2 className="text-center">Landscape Schedule App</h2>
+  </div>
+);
+
 const Public = () => <h3>Public</h3>;
 const Protected = () => <h3>Protected</h3>;
 
 class LScape extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      // --
+      // 'session' variables
+      // ---------------------------
+      isLoggedIn: false,
+      isAdmin: false,
+      isCustomer: false,
+      isEmployee: false,
+      isManager: false,
+      user_name: "",
+      email: "",
+      user_id: "",
+      errorMsg: "",
+      redirectReferrer: false
+    }
+  }
+
+  // Receiving signup result from Signup Component
+  signupResult = (authObj, redirPath) => {
+      this.setState(authObj);
+      this.redirPath = redirPath;
+  }
   
   render() {
 
     return (
       <Router>
+        <Switch>
         <div>
           <AuthButton />
-          <ul>
-            <li>
-              <Link to="/public">Public Page</Link>
-            </li>
-            <li>
-              <Link to="/protected">Protected Page</Link>
-            </li>
-          </ul>
+          <NavMenu
+            isLoggedIn = {this.state.isLoggedIn}
+            isAdmin = {this.state.isAdmin}
+            userId = {this.state.userId}
+            username = {this.state.username}
+            email = {this.state.email}
+          />
 
-          <Route path="/public" component={Public} />
+          <Route exact path="/" component={Home} />
+
+          <Route exact path="/public" component={Public} />
 
           <Route exact path="/login" 
             render={(props) =>
@@ -183,13 +194,14 @@ class LScape extends Component {
             render={(props) =>
               <Signup
                 {...props}
-                getSignupResult = {this.getSignupResult}
+                getSignupResult = {this.signupResult}
               />
             }
           />
 
           <PrivateRoute path="/protected" component={Protected} />
         </div>
+        </Switch>
       </Router>
     );
   }

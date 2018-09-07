@@ -10,32 +10,32 @@ module.exports = {
       {
         user_name: "ffflores",
         email: "ffflores1@outlook.com",
-        user_pw: "1234567",
-        user_type: "Admin",
+        user_pw: "123a",
+        user_type: "admin",
         created_at: new Date(),
         updated_at: new Date()
       },
       {
         user_name: "User One",
         email: "user_one@example.com",
-        user_pw: "1234567",
-        user_type: "User",
+        user_pw: "123a",
+        user_type: "user",
         created_at: new Date(),
         updated_at: new Date()
       }, 
       {
         user_name: "User Two",
         email: "user_two@example.com",
-        user_pw: "1234567",
-        user_type: "User",
+        user_pw: "123a",
+        user_type: "user",
         created_at: new Date(),
         updated_at: new Date()
       },
       {
         user_name: "User Three",
         email: "user_three@example.com",
-        user_pw: "1234567",
-        user_type: "User",
+        user_pw: "123a",
+        user_type: "user",
         created_at: new Date(),
         updated_at: new Date()
       },
