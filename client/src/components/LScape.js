@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import {BrowserRouter as Router, Route, Switch, Redirect, Link, withRouter} from "react-router-dom";
+import {AppName} from "../constants/Consts";
 
 import NavMenu from "./NavMenu";
 // import Footer from "./components/Footer";
@@ -129,7 +130,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
 
 const Home = () => (
   <div className="justify-content-center">
-    <h2 className="text-center">Landscape Schedule App</h2>
+    <h2 className="text-center">{AppName}</h2>
   </div>
 );
 
@@ -154,6 +155,12 @@ class LScape extends Component {
       errorMsg: "",
       redirectReferrer: false
     }
+  }
+
+  // receiving login result from Login component
+  loginResult = (authObj, redirPath) => {
+    this.setState(authObj);
+    this.redirPath = redirPath;
   }
 
   // Receiving signup result from Signup Component
@@ -185,7 +192,7 @@ class LScape extends Component {
             render={(props) =>
               <Login
                 {...props}
-                getLoginResult = {this.getLoginResult}
+                getLoginResult = {this.loginResult}
               />
             }
           />

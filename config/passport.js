@@ -1,9 +1,8 @@
-// boilerplate code Rutgers Coding Bootcamp
 
-var passport = require("passport");
-var LocalStrategy = require("passport-local").Strategy;
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
 
-var db = require("../models");
+const db = require("../models");
 
 // Telling passport we want to use a Local Strategy. In other words, we want login with a username/email and password
 passport.use(new LocalStrategy(
@@ -14,7 +13,6 @@ passport.use(new LocalStrategy(
   },
   function(email, user_pw, done) {
     // When a user tries to sign in this code runs
-    // console.log(email,user_pw);
     db.Users.findOne({
       where: {
         email: email

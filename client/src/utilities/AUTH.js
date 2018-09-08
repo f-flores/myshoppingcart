@@ -13,24 +13,27 @@ export default {
     // }
     //
     signup: function(userInfo) {
-      // console.log("myCancelToken: ", JSON.stringify(myCancelToken));
-     // try {
-        const data = axios.post("/auth/signup", 
-          userInfo,
-          {
-            cancelToken: source.token
-          }
-        );
-        console.log("in cancelToken: source = ", JSON.stringify(source));
-        console.log("CancelToken: source.token = ", JSON.stringify(source.token));
-        return data;
-      // } catch(err) {
-      //  throw err;
-      // }
+      const data = axios.post("/auth/signup", 
+        userInfo,
+        {
+          cancelToken: source.token
+        }
+      );
+      return data;
     },
     // credentials: {username: "uname", password: "12345"}
     login: function(credentials) {
-      return true;
+      const data = axios.post("/auth/login", 
+        credentials,
+        {
+          cancelToken: source.token
+        }
+      );
+      console.log("in login cancelToken: source = ", JSON.stringify(source));
+      console.log("CancelToken login : source.token = ", JSON.stringify(source.token));
+      return data;
+
+      // return true;
       // return true;
       // return axios.post("/auth/login", credentials)
     },

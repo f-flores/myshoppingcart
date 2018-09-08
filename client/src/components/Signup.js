@@ -197,8 +197,8 @@ class Signup extends Component {
           <FormGroup row>
             <Col sm={7}>
               <Button block color="primary" size="lg" type="submit"
-                disabled={ isSubmitting ||
-                  (errors.username || errors.email || errors.password || errors.pswrdConfirmation) ||
+                disabled={ isSubmitting || 
+                  (errors.username || errors.email || errors.password  || errors.pswrdConfirmation ) ||
                   !(touched.username || touched.email || touched.password || touched.pswrdConfirmation)
                 }
                 >

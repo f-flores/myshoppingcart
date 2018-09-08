@@ -14,4 +14,7 @@ export const MaxUsernameLength = 20;
 export const MinPasswordLength = 3;
 
 // Heroku app page
-export const HerokuLiveSite = "https://*******.herokuapp.com"
+export const HerokuLiveSite = "https://*******.herokuapp.com";
+
+// Application Name
+export const AppName="App Name";

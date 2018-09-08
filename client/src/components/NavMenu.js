@@ -11,6 +11,7 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem } from 'reactstrap';
+import {AppName} from "../constants/Consts";
 
 // ---
 // functional component that renders Admin nav item if logged in user is an administrator
@@ -79,7 +80,7 @@ class NavMenu extends Component {
     return  (
       <div>
       <Navbar color="light" light expand="md">
-        <NavbarBrand href="/">AppName</NavbarBrand>
+        <NavbarBrand href="/">{AppName}</NavbarBrand>
 
         <NavbarToggler onClick={this.toggle} />
         <Collapse isOpen={this.state.isOpen} navbar>
