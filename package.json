@@ -23,7 +23,7 @@
   },
   "homepage": "https://murmuring-basin-78523.herokuapp.com/",
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.18.2",
     "cloudinary": "^1.11.0",
